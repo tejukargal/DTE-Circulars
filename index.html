@@ -267,7 +267,7 @@
 
         .circular-title-mobile {
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -626,15 +626,15 @@
                         </div>
                         ` : ''}
                     </div>
-                    <div class="circular-description">
-                        ${escapeHtml(circular.description)}
-                    </div>
                     ${isMobile ? `
                         <div class="circular-full-subject">
                             <strong>📋 Full Subject:</strong><br>
                             ${titleText}
                         </div>
                     ` : ''}
+                    <div class="circular-description">
+                        ${escapeHtml(circular.description)}
+                    </div>
                     ${circular.link ? `
                         <a href="${escapeHtml(circular.link)}" target="_blank" class="circular-link">
                             📄 View Document
