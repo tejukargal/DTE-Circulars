@@ -120,6 +120,15 @@
             border: 1px solid #c3e6cb;
         }
 
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #bee5eb;
+        }
+
         .circulars-list {
             display: grid;
             gap: 20px;
@@ -200,15 +209,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .cors-notice {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border: 1px solid #ffeaa7;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -241,14 +241,14 @@
             <p>Latest Government Orders, Circulars & Notices</p>
         </div>
 
-        <div class="cors-notice" id="corsNotice" style="display: none;">
-            <strong>Note:</strong> Due to browser security restrictions, the first load might fail. 
-            If you see a CORS error, click refresh again - it should work on the second try.
+        <div class="info" id="autoUpdateInfo">
+            <strong>🤖 Auto-Updated:</strong> This data is automatically refreshed every 6 hours using Python scraping. 
+            No CORS issues - reliable and fast!
         </div>
 
         <div class="controls">
             <button class="refresh-btn" onclick="loadCirculars()">
-                🔄 Refresh Circulars
+                🔄 Refresh Data
             </button>
             <button class="export-btn" onclick="exportData()" id="exportBtn" style="display: none;">
                 📥 Export JSON
@@ -257,7 +257,7 @@
 
         <div id="loading" class="loading" style="display: none;">
             <div class="spinner"></div>
-            Loading circulars from DTE website...
+            Loading latest circulars data...
         </div>
 
         <div id="error" class="error" style="display: none;"></div>
@@ -269,25 +269,13 @@
 
         <div id="no-results" class="no-results" style="display: none;">
             <h3>No circulars found</h3>
-            <p>The website might be temporarily unavailable. Please try refreshing in a few moments.</p>
+            <p>The data might be updating. Please try refreshing in a few moments.</p>
         </div>
     </div>
 
     <script>
         let isLoading = false;
         let circularsData = [];
-
-        // CORS proxy services (fallback chain)
-        const CORS_PROXIES = [
-            'https://api.allorigins.win/get?url=',
-            'https://corsproxy.io/?',
-            'https://api.codetabs.com/v1/proxy?quest=',
-            'https://cors-proxy.htmldriven.com/?url=',
-            'https://thingproxy.freeboard.io/fetch/',
-            ''  // Direct attempt as fallback
-        ];
-
-        const TARGET_URL = 'https://dtek.karnataka.gov.in/info-4/Department+Orders/GO-DVP/kn';
 
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
@@ -310,21 +298,19 @@
         function showError(message) {
             const errorDiv = document.getElementById('error');
             errorDiv.innerHTML = `
-                <strong>⚠️ Connection Issue:</strong> ${message}
+                <strong>⚠️ Data Loading Issue:</strong> ${message}
                 <br><br>
-                <strong>💡 Quick Fixes:</strong>
+                <strong>💡 What to try:</strong>
                 <ul style="margin: 10px 0; padding-left: 20px;">
-                    <li>Click "Refresh Circulars" again (often works on 2nd try)</li>
-                    <li>Wait 30 seconds and try again</li>
-                    <li>Check your internet connection</li>
-                    <li>Try from a different browser or device</li>
+                    <li>Wait a moment and click "Refresh Data" again</li>
+                    <li>The GitHub Actions may be updating the data</li>
+                    <li>Check back in a few minutes</li>
                 </ul>
                 <button onclick="loadCirculars()" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
                     🔄 Try Again
                 </button>
             `;
             errorDiv.style.display = 'block';
-            document.getElementById('corsNotice').style.display = 'block';
         }
 
         function showSuccess(message) {
@@ -336,153 +322,7 @@
             }, 3000);
         }
 
-        function extractDate(text) {
-            const datePatterns = [
-                /\d{1,2}[-\/]\d{1,2}[-\/]\d{4}/,
-                /\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/,
-                /\d{1,2}[-\/]\d{1,2}[-\/]\d{2}/,
-                /\d{1,2}\.\d{1,2}\.\d{4}/
-            ];
-            
-            for (let pattern of datePatterns) {
-                const match = text.match(pattern);
-                if (match) return match[0];
-            }
-            
-            return "Date not available";
-        }
-
-        function parseTableRow(row) {
-            const cells = row.querySelectorAll('td, th');
-            if (cells.length < 4) return null;
-            
-            // Extract data from table columns
-            const dateText = cells[0]?.textContent?.trim() || '';
-            const orderNumber = cells[1]?.textContent?.trim() || '';
-            const titleText = cells[2]?.textContent?.trim() || '';
-            
-            // Skip if essential data is missing
-            if (!titleText || titleText.length < 5) return null;
-            
-            // Skip header rows
-            if (titleText.includes('ದಿನಾಂಕ') || titleText.includes('ವಿಷಯ')) return null;
-            
-            // Extract view link from the last column
-            let link = null;
-            if (cells.length >= 5) {
-                const linkElement = cells[4].querySelector('a');
-                if (linkElement && linkElement.href) {
-                    link = linkElement.href.startsWith('http') ? 
-                           linkElement.href : 
-                           `https://dtek.karnataka.gov.in${linkElement.getAttribute('href')}`;
-                }
-            }
-            
-            // Create title with order number
-            const fullTitle = orderNumber ? `${orderNumber}: ${titleText}` : titleText;
-            
-            // Create description (truncate if too long)
-            let description = titleText;
-            if (description.length > 150) {
-                description = description.substring(0, 147) + "...";
-            }
-            
-            return {
-                title: fullTitle,
-                description: description,
-                date: dateText,
-                order_number: orderNumber,
-                link: link,
-                source: 'DTE Karnataka'
-            };
-        }
-
-        function parseCirculars(htmlContent) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlContent, 'text/html');
-            
-            // Look for the main table containing circulars
-            const table = doc.querySelector('table');
-            if (!table) return [];
-            
-            // Find all rows except the header row
-            const rows = Array.from(table.querySelectorAll('tr')).slice(1);
-            const circulars = [];
-            
-            for (let i = 0; i < Math.min(rows.length, 10); i++) {
-                const circular = parseTableRow(rows[i]);
-                if (circular) {
-                    circulars.push(circular);
-                }
-            }
-            
-            return circulars;
-        }
-
-        async function fetchWithProxy(proxyIndex = 0) {
-            if (proxyIndex >= CORS_PROXIES.length) {
-                throw new Error('All proxy services are currently unavailable. Please try again later.');
-            }
-
-            const proxy = CORS_PROXIES[proxyIndex];
-            let url, needsJsonParsing = false;
-            
-            if (proxy.includes('allorigins.win')) {
-                url = proxy + encodeURIComponent(TARGET_URL);
-                needsJsonParsing = true;
-            } else if (proxy === '') {
-                url = TARGET_URL; // Direct attempt
-            } else {
-                url = proxy + encodeURIComponent(TARGET_URL);
-            }
-            
-            try {
-                console.log(`Trying proxy ${proxyIndex + 1}/${CORS_PROXIES.length}: ${proxy || 'Direct'}`);
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                    },
-                    mode: proxy === '' ? 'no-cors' : 'cors'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                let content = await response.text();
-                
-                // Handle allorigins.win JSON response
-                if (needsJsonParsing) {
-                    try {
-                        const jsonData = JSON.parse(content);
-                        content = jsonData.contents || jsonData.data || content;
-                    } catch (e) {
-                        // If JSON parsing fails, use content as-is
-                    }
-                }
-                
-                // Validate we got HTML content
-                if (!content.includes('<table') && !content.includes('DTE') && !content.includes('Karnataka')) {
-                    throw new Error('Invalid response content');
-                }
-                
-                console.log(`✅ Proxy ${proxyIndex + 1} succeeded!`);
-                return content;
-                
-            } catch (error) {
-                console.log(`❌ Proxy ${proxyIndex + 1} failed:`, error.message);
-                
-                // Add delay before trying next proxy
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                return await fetchWithProxy(proxyIndex + 1);
-            }
-        }
-
-        function displayCirculars(circulars) {
+        function displayCirculars(circulars, timestamp) {
             const circularsDiv = document.getElementById('circulars');
             const statsDiv = document.getElementById('stats');
             const noResultsDiv = document.getElementById('no-results');
@@ -494,9 +334,11 @@
             }
 
             // Show stats
+            const lastUpdated = timestamp ? timestamp.last_updated : new Date().toLocaleString();
             statsDiv.innerHTML = `
-                <strong>${circulars.length} circulars found</strong> | 
-                Last updated: ${new Date().toLocaleString()}
+                <strong>📊 ${circulars.length} circulars loaded</strong> | 
+                <strong>🕒 Last updated:</strong> ${lastUpdated} |
+                <strong>🤖 Auto-refreshed:</strong> Every 6 hours
             `;
             statsDiv.style.display = 'block';
             exportBtn.style.display = 'inline-block';
@@ -540,7 +382,7 @@
 
         function escapeHtml(text) {
             const div = document.createElement('div');
-            div.textContent = text;
+            div.textContent = text || '';
             return div.innerHTML;
         }
 
@@ -571,16 +413,32 @@
             showLoading();
 
             try {
-                const htmlContent = await fetchWithProxy();
-                const circulars = parseCirculars(htmlContent);
-                displayCirculars(circulars);
+                // Load circulars data
+                const circularsResponse = await fetch('./data/latest.json');
+                if (!circularsResponse.ok) {
+                    throw new Error(`Failed to load circulars data (${circularsResponse.status})`);
+                }
+                const circulars = await circularsResponse.json();
+
+                // Load timestamp data
+                let timestamp = null;
+                try {
+                    const timestampResponse = await fetch('./data/timestamp.json');
+                    if (timestampResponse.ok) {
+                        timestamp = await timestampResponse.json();
+                    }
+                } catch (e) {
+                    console.log('Timestamp not available:', e.message);
+                }
+
+                displayCirculars(circulars, timestamp);
                 
                 if (circulars.length > 0) {
-                    showSuccess(`✅ Successfully loaded ${circulars.length} circulars!`);
+                    showSuccess(`✅ Successfully loaded ${circulars.length} circulars from automated scraping!`);
                 }
             } catch (error) {
-                showError(`Failed to fetch circulars: ${error.message}. This might be due to browser security restrictions. Try clicking refresh again.`);
-                console.error('Fetch error:', error);
+                showError(`Failed to load data: ${error.message}. The GitHub Actions may be updating the data.`);
+                console.error('Load error:', error);
             } finally {
                 hideLoading();
             }
@@ -589,7 +447,7 @@
         // Load circulars when page loads
         window.addEventListener('load', () => {
             // Small delay to let the page render
-            setTimeout(loadCirculars, 1000);
+            setTimeout(loadCirculars, 500);
         });
 
         // Handle keyboard shortcuts
