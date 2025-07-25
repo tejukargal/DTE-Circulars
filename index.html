@@ -5,6 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DTE Karnataka Circulars</title>
     <style>
+        :root {
+            /* Light mode variables */
+            --bg-primary: #f4f4f4;
+            --bg-secondary: #ffffff;
+            --bg-header: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-card-header: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            --bg-meta-item: #f1f3f4;
+            --bg-info: #d1ecf1;
+            --bg-success: #d4edda;
+            --bg-error: #f8d7da;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-light: #555;
+            --text-header: #2c3e50;
+            --text-success: #155724;
+            --text-error: #721c24;
+            --text-info: #0c5460;
+            --border-light: #dee2e6;
+            --border-meta: #e0e0e0;
+            --shadow-light: rgba(0,0,0,0.08);
+            --shadow-hover: rgba(0,0,0,0.15);
+        }
+
+        [data-theme="dark"] {
+            /* Dark mode variables */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-header: linear-gradient(135deg, #4a5568 0%, #553c8b 100%);
+            --bg-card-header: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            --bg-meta-item: #3a3a3a;
+            --bg-info: #1e3a5f;
+            --bg-success: #1e4620;
+            --bg-error: #4a1e1e;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --text-light: #cbd5e0;
+            --text-header: #f7fafc;
+            --text-success: #68d391;
+            --text-error: #fc8181;
+            --text-info: #63b3ed;
+            --border-light: #4a5568;
+            --border-meta: #4a5568;
+            --shadow-light: rgba(0,0,0,0.3);
+            --shadow-hover: rgba(0,0,0,0.5);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,8 +60,9 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background-color: #f4f4f4;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
@@ -25,13 +72,14 @@
         }
 
         .header {
-            text-align: center;
+            text-align: justify;
             margin-bottom: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-header);
             color: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px var(--shadow-light);
+            position: relative;
         }
 
         .header h1 {
@@ -53,15 +101,36 @@
             flex-wrap: wrap;
         }
 
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
         .category-select {
             padding: 12px 16px;
             font-size: 1rem;
             border: 2px solid #007bff;
             border-radius: 5px;
-            background: white;
-            color: #333;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             cursor: pointer;
             min-width: 200px;
+            transition: all 0.3s ease;
         }
 
         .refresh-btn, .export-btn {
@@ -133,12 +202,13 @@
         }
 
         .info {
-            background: #d1ecf1;
-            color: #0c5460;
+            background: var(--bg-info);
+            color: var(--text-info);
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 20px;
-            border: 1px solid #bee5eb;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
         }
 
         .circulars-list {
@@ -147,28 +217,30 @@
         }
 
         .circular-item {
-            background: white;
+            background: var(--bg-secondary);
             padding: 18px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease;
         }
 
         .circular-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 20px var(--shadow-hover);
         }
 
         .circular-title {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--text-header);
             margin: -18px -18px 8px -18px;
             padding: 12px 18px;
             line-height: 1.3;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            text-align: justify;
+            background: var(--bg-card-header);
             border-radius: 8px 8px 0 0;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.3s ease;
         }
 
         .circular-meta {
@@ -177,24 +249,26 @@
             gap: 8px;
             margin-bottom: 10px;
             font-size: 0.85rem;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .meta-item {
             display: flex;
             align-items: center;
             gap: 4px;
-            background: #f1f3f4;
+            background: var(--bg-meta-item);
             padding: 4px 8px;
             border-radius: 4px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--border-meta);
+            transition: background 0.3s ease;
         }
 
         .circular-description {
-            color: #555;
+            color: var(--text-light);
             margin-bottom: 12px;
             line-height: 1.4;
             font-size: 0.9rem;
+            transition: color 0.3s ease;
         }
 
         .circular-link {
@@ -216,18 +290,21 @@
             text-align: center;
             margin-bottom: 20px;
             padding: 15px;
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px var(--shadow-light);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .no-results {
             text-align: center;
             padding: 60px 20px;
-            color: #666;
-            background: white;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px var(--shadow-light);
+            transition: all 0.3s ease;
         }
 
         @media (max-width: 768px) {
@@ -273,12 +350,22 @@
                 margin: -15px -15px 8px -15px;
                 padding: 10px 15px;
             }
+
+            .dark-mode-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" id="darkModeToggle">
+                🌙 Dark Mode
+            </button>
             <h1>DTE Karnataka Circulars</h1>
             <p>Latest Government Orders, Circulars & Notices</p>
         </div>
@@ -325,6 +412,39 @@
         let isLoading = false;
         let circularsData = [];
         let currentCategory = 'DVP';
+        
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const toggleBtn = document.getElementById('darkModeToggle');
+            
+            if (html.getAttribute('data-theme') === 'dark') {
+                // Switch to light mode
+                html.removeAttribute('data-theme');
+                toggleBtn.innerHTML = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Switch to dark mode
+                html.setAttribute('data-theme', 'dark');
+                toggleBtn.innerHTML = '☀️ Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Initialize theme on page load
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            const toggleBtn = document.getElementById('darkModeToggle');
+            
+            if (savedTheme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+                toggleBtn.innerHTML = '☀️ Light Mode';
+            } else {
+                html.removeAttribute('data-theme');
+                toggleBtn.innerHTML = '🌙 Dark Mode';
+            }
+        }
 
         const CATEGORIES = {
             'DVP': {
@@ -526,6 +646,9 @@
 
         // Load circulars when page loads
         window.addEventListener('load', () => {
+            // Initialize theme first
+            initializeTheme();
+            
             // Small delay to let the page render
             setTimeout(loadCirculars, 500);
             
