@@ -263,6 +263,24 @@
             transition: background 0.3s ease;
         }
 
+        .meta-date {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        .meta-order {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        [data-theme="dark"] .meta-date {
+            color: #4dabf7;
+        }
+
+        [data-theme="dark"] .meta-order {
+            color: #51cf66;
+        }
+
         .circular-description {
             color: var(--text-light);
             margin-bottom: 12px;
@@ -364,7 +382,7 @@
     <div class="container">
         <div class="header">
             <button class="dark-mode-toggle" onclick="toggleDarkMode()" id="darkModeToggle">
-                🌙 Dark Mode
+                🌙
             </button>
             <h1>DTE Karnataka Circulars</h1>
             <p>Latest Government Orders, Circulars & Notices</p>
@@ -421,12 +439,12 @@
             if (html.getAttribute('data-theme') === 'dark') {
                 // Switch to light mode
                 html.removeAttribute('data-theme');
-                toggleBtn.innerHTML = '🌙 Dark Mode';
+                toggleBtn.innerHTML = '🌙';
                 localStorage.setItem('theme', 'light');
             } else {
                 // Switch to dark mode
                 html.setAttribute('data-theme', 'dark');
-                toggleBtn.innerHTML = '☀️ Light Mode';
+                toggleBtn.innerHTML = '☀️';
                 localStorage.setItem('theme', 'dark');
             }
         }
@@ -439,10 +457,10 @@
             
             if (savedTheme === 'dark') {
                 html.setAttribute('data-theme', 'dark');
-                toggleBtn.innerHTML = '☀️ Light Mode';
+                toggleBtn.innerHTML = '☀️';
             } else {
                 html.removeAttribute('data-theme');
-                toggleBtn.innerHTML = '🌙 Dark Mode';
+                toggleBtn.innerHTML = '🌙';
             }
         }
 
@@ -540,12 +558,14 @@
                     <div class="circular-meta">
                         <div class="meta-item">
                             <span>📅</span>
-                            <span>${escapeHtml(circular.date)} • DTE Karnataka</span>
+                            <span class="meta-date">${escapeHtml(circular.date)}</span>
+                            <span> • DTE Karnataka</span>
                         </div>
                         ${circular.order_number ? `
                         <div class="meta-item">
                             <span>📋</span>
-                            <span>Order: ${escapeHtml(circular.order_number)}</span>
+                            <span>Order: </span>
+                            <span class="meta-order">${escapeHtml(circular.order_number)}</span>
                         </div>
                         ` : ''}
                     </div>
