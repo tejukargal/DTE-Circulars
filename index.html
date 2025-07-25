@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTE Karnataka Circulars</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .refresh-btn, .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .export-btn {
+            background: #007bff;
+        }
+
+        .refresh-btn:hover {
+            background: #218838;
+        }
+
+        .export-btn:hover {
+            background: #0056b3;
+        }
+
+        .refresh-btn:disabled, .export-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .circulars-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .circular-item {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .circular-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .circular-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .circular-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .circular-description {
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .circular-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .circular-link:hover {
+            background: #0056b3;
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .cors-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ffeaa7;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .circular-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .refresh-btn, .export-btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DTE Karnataka Circulars</h1>
+            <p>Latest Government Orders, Circulars & Notices</p>
+        </div>
+
+        <div class="cors-notice" id="corsNotice" style="display: none;">
+            <strong>Note:</strong> Due to browser security restrictions, the first load might fail. 
+            If you see a CORS error, click refresh again - it should work on the second try.
+        </div>
+
+        <div class="controls">
+            <button class="refresh-btn" onclick="loadCirculars()">
+                🔄 Refresh Circulars
+            </button>
+            <button class="export-btn" onclick="exportData()" id="exportBtn" style="display: none;">
+                📥 Export JSON
+            </button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            Loading circulars from DTE website...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="success" class="success" style="display: none;"></div>
+
+        <div id="stats" class="stats" style="display: none;"></div>
+
+        <div id="circulars" class="circulars-list"></div>
+
+        <div id="no-results" class="no-results" style="display: none;">
+            <h3>No circulars found</h3>
+            <p>The website might be temporarily unavailable. Please try refreshing in a few moments.</p>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+        let circularsData = [];
+
+        // CORS proxy services (fallback chain)
+        const CORS_PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://cors-anywhere.herokuapp.com/',
+            ''  // Direct attempt as fallback
+        ];
+
+        const TARGET_URL = 'https://dtek.karnataka.gov.in/info-4/Department+Orders/GO-DVP/kn';
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('success').style.display = 'none';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('circulars').innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+            document.getElementById('exportBtn').style.display = 'none';
+            document.querySelector('.refresh-btn').disabled = true;
+            isLoading = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.querySelector('.refresh-btn').disabled = false;
+            isLoading = false;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<strong>Error:</strong> ${message}`;
+            errorDiv.style.display = 'block';
+            document.getElementById('corsNotice').style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.innerHTML = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function extractDate(text) {
+            const datePatterns = [
+                /\d{1,2}[-\/]\d{1,2}[-\/]\d{4}/,
+                /\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/,
+                /\d{1,2}[-\/]\d{1,2}[-\/]\d{2}/,
+                /\d{1,2}\.\d{1,2}\.\d{4}/
+            ];
+            
+            for (let pattern of datePatterns) {
+                const match = text.match(pattern);
+                if (match) return match[0];
+            }
+            
+            return "Date not available";
+        }
+
+        function parseTableRow(row) {
+            const cells = row.querySelectorAll('td, th');
+            if (cells.length < 4) return null;
+            
+            // Extract data from table columns
+            const dateText = cells[0]?.textContent?.trim() || '';
+            const orderNumber = cells[1]?.textContent?.trim() || '';
+            const titleText = cells[2]?.textContent?.trim() || '';
+            
+            // Skip if essential data is missing
+            if (!titleText || titleText.length < 5) return null;
+            
+            // Skip header rows
+            if (titleText.includes('ದಿನಾಂಕ') || titleText.includes('ವಿಷಯ')) return null;
+            
+            // Extract view link from the last column
+            let link = null;
+            if (cells.length >= 5) {
+                const linkElement = cells[4].querySelector('a');
+                if (linkElement && linkElement.href) {
+                    link = linkElement.href.startsWith('http') ? 
+                           linkElement.href : 
+                           `https://dtek.karnataka.gov.in${linkElement.getAttribute('href')}`;
+                }
+            }
+            
+            // Create title with order number
+            const fullTitle = orderNumber ? `${orderNumber}: ${titleText}` : titleText;
+            
+            // Create description (truncate if too long)
+            let description = titleText;
+            if (description.length > 150) {
+                description = description.substring(0, 147) + "...";
+            }
+            
+            return {
+                title: fullTitle,
+                description: description,
+                date: dateText,
+                order_number: orderNumber,
+                link: link,
+                source: 'DTE Karnataka'
+            };
+        }
+
+        function parseCirculars(htmlContent) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            
+            // Look for the main table containing circulars
+            const table = doc.querySelector('table');
+            if (!table) return [];
+            
+            // Find all rows except the header row
+            const rows = Array.from(table.querySelectorAll('tr')).slice(1);
+            const circulars = [];
+            
+            for (let i = 0; i < Math.min(rows.length, 10); i++) {
+                const circular = parseTableRow(rows[i]);
+                if (circular) {
+                    circulars.push(circular);
+                }
+            }
+            
+            return circulars;
+        }
+
+        async function fetchWithProxy(proxyIndex = 0) {
+            if (proxyIndex >= CORS_PROXIES.length) {
+                throw new Error('All proxy attempts failed');
+            }
+
+            const proxy = CORS_PROXIES[proxyIndex];
+            const url = proxy + encodeURIComponent(TARGET_URL);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                return await response.text();
+            } catch (error) {
+                console.log(`Proxy ${proxyIndex} failed:`, error.message);
+                return await fetchWithProxy(proxyIndex + 1);
+            }
+        }
+
+        function displayCirculars(circulars) {
+            const circularsDiv = document.getElementById('circulars');
+            const statsDiv = document.getElementById('stats');
+            const noResultsDiv = document.getElementById('no-results');
+            const exportBtn = document.getElementById('exportBtn');
+
+            if (!circulars || circulars.length === 0) {
+                noResultsDiv.style.display = 'block';
+                return;
+            }
+
+            // Show stats
+            statsDiv.innerHTML = `
+                <strong>${circulars.length} circulars found</strong> | 
+                Last updated: ${new Date().toLocaleString()}
+            `;
+            statsDiv.style.display = 'block';
+            exportBtn.style.display = 'inline-block';
+
+            // Display circulars
+            const circularsHtml = circulars.map((circular, index) => `
+                <div class="circular-item">
+                    <div class="circular-title">
+                        ${index + 1}. ${escapeHtml(circular.title)}
+                    </div>
+                    <div class="circular-meta">
+                        <div class="meta-item">
+                            <span>📅</span>
+                            <span>${escapeHtml(circular.date)}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span>🏛️</span>
+                            <span>${escapeHtml(circular.source)}</span>
+                        </div>
+                        ${circular.order_number ? `
+                        <div class="meta-item">
+                            <span>📋</span>
+                            <span>Order: ${escapeHtml(circular.order_number)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="circular-description">
+                        ${escapeHtml(circular.description)}
+                    </div>
+                    ${circular.link ? `
+                        <a href="${escapeHtml(circular.link)}" target="_blank" class="circular-link">
+                            📄 View Document
+                        </a>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            circularsDiv.innerHTML = circularsHtml;
+            circularsData = circulars;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function exportData() {
+            if (circularsData.length === 0) {
+                showError('No data to export. Please refresh first.');
+                return;
+            }
+
+            const dataStr = JSON.stringify(circularsData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `dte_circulars_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showSuccess('📥 Data exported successfully!');
+        }
+
+        async function loadCirculars() {
+            if (isLoading) return;
+
+            showLoading();
+
+            try {
+                const htmlContent = await fetchWithProxy();
+                const circulars = parseCirculars(htmlContent);
+                displayCirculars(circulars);
+                
+                if (circulars.length > 0) {
+                    showSuccess(`✅ Successfully loaded ${circulars.length} circulars!`);
+                }
+            } catch (error) {
+                showError(`Failed to fetch circulars: ${error.message}. This might be due to browser security restrictions. Try clicking refresh again.`);
+                console.error('Fetch error:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load circulars when page loads
+        window.addEventListener('load', () => {
+            // Small delay to let the page render
+            setTimeout(loadCirculars, 1000);
+        });
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                loadCirculars();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: dte-circulars
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python web_app.py"
+    envVars:
+      - key: PORT
+        value: 10000

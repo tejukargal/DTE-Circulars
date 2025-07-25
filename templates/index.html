@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTE Karnataka Circulars</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .refresh-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #218838;
+        }
+
+        .refresh-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .circulars-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .circular-item {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .circular-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .circular-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .circular-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meta-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .circular-description {
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .circular-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .circular-link:hover {
+            background: #0056b3;
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .circular-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DTE Karnataka Circulars</h1>
+            <p>Latest Government Orders, Circulars & Notices</p>
+        </div>
+
+        <div class="controls">
+            <button class="refresh-btn" onclick="loadCirculars()">
+                🔄 Refresh Circulars
+            </button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            Loading circulars...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="stats" class="stats" style="display: none;"></div>
+
+        <div id="circulars" class="circulars-list"></div>
+
+        <div id="no-results" class="no-results" style="display: none;">
+            <h3>No circulars found</h3>
+            <p>The website might be temporarily unavailable or the structure may have changed.</p>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('circulars').innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+            document.querySelector('.refresh-btn').disabled = true;
+            isLoading = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.querySelector('.refresh-btn').disabled = false;
+            isLoading = false;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function displayCirculars(data) {
+            const circularsDiv = document.getElementById('circulars');
+            const statsDiv = document.getElementById('stats');
+            const noResultsDiv = document.getElementById('no-results');
+
+            if (!data.circulars || data.circulars.length === 0) {
+                noResultsDiv.style.display = 'block';
+                return;
+            }
+
+            // Show stats
+            statsDiv.innerHTML = `
+                <strong>${data.count} circulars found</strong> | 
+                Last updated: ${data.last_updated}
+            `;
+            statsDiv.style.display = 'block';
+
+            // Display circulars
+            const circularsHtml = data.circulars.map((circular, index) => `
+                <div class="circular-item">
+                    <div class="circular-title">
+                        ${index + 1}. ${circular.title}
+                    </div>
+                    <div class="circular-meta">
+                        <div class="meta-item">
+                            <i>📅</i>
+                            <span>${circular.date}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i>🏛️</i>
+                            <span>${circular.source}</span>
+                        </div>
+                        ${circular.order_number ? `
+                        <div class="meta-item">
+                            <i>📋</i>
+                            <span>Order: ${circular.order_number}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="circular-description">
+                        ${circular.description}
+                    </div>
+                    ${circular.link ? `
+                        <a href="${circular.link}" target="_blank" class="circular-link">
+                            📄 View Document
+                        </a>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            circularsDiv.innerHTML = circularsHtml;
+        }
+
+        async function loadCirculars() {
+            if (isLoading) return;
+
+            showLoading();
+
+            try {
+                const response = await fetch('/api/circulars');
+                const data = await response.json();
+
+                if (data.success) {
+                    displayCirculars(data);
+                } else {
+                    showError(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                showError(`Network error: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load circulars when page loads
+        window.addEventListener('load', loadCirculars);
+    </script>
+</body>
+</html>
