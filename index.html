@@ -72,14 +72,21 @@
         }
 
         .header {
-            text-align: justify;
+            text-align: center;
             margin-bottom: 30px;
-            background: var(--bg-header);
-            color: white;
+            background: #f8f9fa;
+            color: #2c3e50;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 6px var(--shadow-light);
             position: relative;
+            border: 2px solid #e3f2fd;
+        }
+
+        [data-theme="dark"] .header {
+            background: #2d3748;
+            color: #f7fafc;
+            border-color: #1e3a8a;
         }
 
         .header h1 {
@@ -105,11 +112,11 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 123, 255, 0.2);
+            border: 2px solid rgba(0, 123, 255, 0.3);
             border-radius: 25px;
             padding: 8px 16px;
-            color: white;
+            color: #2c3e50;
             cursor: pointer;
             font-size: 0.9rem;
             transition: all 0.3s ease;
@@ -117,8 +124,18 @@
         }
 
         .dark-mode-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 123, 255, 0.3);
             transform: scale(1.05);
+        }
+
+        [data-theme="dark"] .dark-mode-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #f7fafc;
+        }
+
+        [data-theme="dark"] .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .category-select {
@@ -221,7 +238,12 @@
             padding: 18px;
             border-radius: 8px;
             box-shadow: 0 2px 8px var(--shadow-light);
-            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease;
+            border: 2px solid #e3f2fd;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        [data-theme="dark"] .circular-item {
+            border-color: #1e3a8a;
         }
 
         .circular-item:hover {
@@ -241,6 +263,41 @@
             border-radius: 8px 8px 0 0;
             border-bottom: 1px solid var(--border-light);
             transition: background 0.3s ease;
+        }
+
+        .circular-title-mobile {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .circular-full-text {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--bg-meta-item);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            text-align: justify;
+        }
+
+        .show-more-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .show-more-btn:hover {
+            background: #0056b3;
         }
 
         .circular-meta {
@@ -367,6 +424,14 @@
                 font-size: 1rem;
                 margin: -15px -15px 8px -15px;
                 padding: 10px 15px;
+            }
+
+            .circular-title:not(.circular-title-mobile) {
+                display: none;
+            }
+
+            .circular-title-mobile {
+                display: -webkit-box !important;
             }
 
             .dark-mode-toggle {
@@ -550,11 +615,22 @@
             exportBtn.style.display = 'inline-block';
 
             // Display circulars
-            const circularsHtml = circulars.map((circular, index) => `
+            const circularsHtml = circulars.map((circular, index) => {
+                const titleText = `${index + 1}. ${escapeHtml(circular.title)}`;
+                const isMobile = window.innerWidth <= 768;
+                
+                return `
                 <div class="circular-item">
-                    <div class="circular-title">
-                        ${index + 1}. ${escapeHtml(circular.title)}
+                    <div class="circular-title ${isMobile ? 'circular-title-mobile' : ''}">
+                        ${titleText}
                     </div>
+                    ${isMobile ? `
+                        <button class="show-more-btn" onclick="toggleFullText(${index})">Show Full</button>
+                        <div class="circular-full-text" id="fullText${index}">
+                            <strong>Full Subject:</strong><br>
+                            ${titleText}
+                        </div>
+                    ` : ''}
                     <div class="circular-meta">
                         <div class="meta-item">
                             <span>📅</span>
@@ -578,7 +654,8 @@
                         </a>
                     ` : ''}
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             circularsDiv.innerHTML = circularsHtml;
             circularsData = circulars;
@@ -615,6 +692,19 @@
             const select = document.getElementById('categorySelect');
             currentCategory = select.value;
             loadCirculars();
+        }
+
+        function toggleFullText(index) {
+            const fullTextDiv = document.getElementById(`fullText${index}`);
+            const btn = event.target;
+            
+            if (fullTextDiv.style.display === 'block') {
+                fullTextDiv.style.display = 'none';
+                btn.textContent = 'Show Full';
+            } else {
+                fullTextDiv.style.display = 'block';
+                btn.textContent = 'Hide';
+            }
         }
 
         async function loadCirculars() {
