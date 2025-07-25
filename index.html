@@ -80,13 +80,13 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px var(--shadow-light);
             position: relative;
-            border: 2px solid #e3f2fd;
+            border: 2px solid #90caf9;
         }
 
         [data-theme="dark"] .header {
             background: #2d3748;
             color: #f7fafc;
-            border-color: #1e3a8a;
+            border-color: #1565c0;
         }
 
         .header h1 {
@@ -238,12 +238,12 @@
             padding: 18px;
             border-radius: 8px;
             box-shadow: 0 2px 8px var(--shadow-light);
-            border: 2px solid #e3f2fd;
+            border: 2px solid #90caf9;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease, border-color 0.3s ease;
         }
 
         [data-theme="dark"] .circular-item {
-            border-color: #1e3a8a;
+            border-color: #1565c0;
         }
 
         .circular-item:hover {
@@ -273,31 +273,19 @@
             text-overflow: ellipsis;
         }
 
-        .circular-full-text {
-            display: none;
-            margin-top: 10px;
-            padding: 10px;
+        .circular-full-subject {
+            margin-top: 8px;
+            padding: 8px;
             background: var(--bg-meta-item);
             border-radius: 4px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             line-height: 1.4;
-            text-align: justify;
+            color: var(--text-light);
+            border-left: 3px solid #90caf9;
         }
 
-        .show-more-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-top: 5px;
-            transition: background 0.3s ease;
-        }
-
-        .show-more-btn:hover {
-            background: #0056b3;
+        [data-theme="dark"] .circular-full-subject {
+            border-left-color: #1565c0;
         }
 
         .circular-meta {
@@ -624,13 +612,6 @@
                     <div class="circular-title ${isMobile ? 'circular-title-mobile' : ''}">
                         ${titleText}
                     </div>
-                    ${isMobile ? `
-                        <button class="show-more-btn" onclick="toggleFullText(${index})">Show Full</button>
-                        <div class="circular-full-text" id="fullText${index}">
-                            <strong>Full Subject:</strong><br>
-                            ${titleText}
-                        </div>
-                    ` : ''}
                     <div class="circular-meta">
                         <div class="meta-item">
                             <span>📅</span>
@@ -648,6 +629,12 @@
                     <div class="circular-description">
                         ${escapeHtml(circular.description)}
                     </div>
+                    ${isMobile ? `
+                        <div class="circular-full-subject">
+                            <strong>📋 Full Subject:</strong><br>
+                            ${titleText}
+                        </div>
+                    ` : ''}
                     ${circular.link ? `
                         <a href="${escapeHtml(circular.link)}" target="_blank" class="circular-link">
                             📄 View Document
@@ -692,19 +679,6 @@
             const select = document.getElementById('categorySelect');
             currentCategory = select.value;
             loadCirculars();
-        }
-
-        function toggleFullText(index) {
-            const fullTextDiv = document.getElementById(`fullText${index}`);
-            const btn = event.target;
-            
-            if (fullTextDiv.style.display === 'block') {
-                fullTextDiv.style.display = 'none';
-                btn.textContent = 'Show Full';
-            } else {
-                fullTextDiv.style.display = 'block';
-                btn.textContent = 'Hide';
-            }
         }
 
         async function loadCirculars() {
