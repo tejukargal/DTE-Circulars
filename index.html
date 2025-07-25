@@ -47,9 +47,21 @@
         .controls {
             display: flex;
             justify-content: center;
+            align-items: center;
             margin-bottom: 30px;
             gap: 15px;
             flex-wrap: wrap;
+        }
+
+        .category-select {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            min-width: 200px;
         }
 
         .refresh-btn, .export-btn {
@@ -136,9 +148,9 @@
 
         .circular-item {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
@@ -148,42 +160,43 @@
         }
 
         .circular-title {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 10px;
-            line-height: 1.4;
+            margin-bottom: 8px;
+            line-height: 1.3;
         }
 
         .circular-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
             color: #666;
         }
 
         .meta-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
 
         .circular-description {
             color: #555;
-            margin-bottom: 15px;
-            line-height: 1.5;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            font-size: 0.9rem;
         }
 
         .circular-link {
             display: inline-block;
             background: #007bff;
             color: white;
-            padding: 8px 16px;
+            padding: 6px 12px;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.9rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
             transition: background 0.3s;
         }
 
@@ -220,16 +233,35 @@
             
             .circular-meta {
                 flex-direction: column;
-                gap: 8px;
+                gap: 6px;
             }
 
             .controls {
-                flex-direction: column;
+                flex-direction: row;
+                justify-content: center;
                 align-items: center;
+                gap: 10px;
             }
 
             .refresh-btn, .export-btn {
-                width: 200px;
+                flex: 1;
+                max-width: 140px;
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .category-select {
+                width: 100%;
+                margin-bottom: 10px;
+                order: -1;
+            }
+
+            .circular-item {
+                padding: 15px;
+            }
+
+            .circular-title {
+                font-size: 1rem;
             }
         }
     </style>
@@ -247,6 +279,12 @@
         </div>
 
         <div class="controls">
+            <select class="category-select" id="categorySelect" onchange="changeCategory()">
+                <option value="DVP">DVP Circulars</option>
+                <option value="Exam">Exam Circulars</option>
+                <option value="ACM">ACM Circulars</option>
+                <option value="Departmental">Departmental Circulars</option>
+            </select>
             <button class="refresh-btn" onclick="loadCirculars()">
                 🔄 Refresh Data
             </button>
@@ -276,6 +314,26 @@
     <script>
         let isLoading = false;
         let circularsData = [];
+        let currentCategory = 'DVP';
+
+        const CATEGORIES = {
+            'DVP': {
+                name: 'DVP Circulars',
+                file: 'dvp.json'
+            },
+            'Exam': {
+                name: 'Exam Circulars', 
+                file: 'exam.json'
+            },
+            'ACM': {
+                name: 'ACM Circulars',
+                file: 'acm.json'
+            },
+            'Departmental': {
+                name: 'Departmental Circulars',
+                file: 'departmental.json'
+            }
+        };
 
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
@@ -319,7 +377,7 @@
             successDiv.style.display = 'block';
             setTimeout(() => {
                 successDiv.style.display = 'none';
-            }, 3000);
+            }, 5000);
         }
 
         function displayCirculars(circulars, timestamp) {
@@ -352,11 +410,7 @@
                     <div class="circular-meta">
                         <div class="meta-item">
                             <span>📅</span>
-                            <span>${escapeHtml(circular.date)}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span>🏛️</span>
-                            <span>${escapeHtml(circular.source)}</span>
+                            <span>${escapeHtml(circular.date)} • DTE Karnataka</span>
                         </div>
                         ${circular.order_number ? `
                         <div class="meta-item">
@@ -407,18 +461,34 @@
             showSuccess('📥 Data exported successfully!');
         }
 
+        function changeCategory() {
+            const select = document.getElementById('categorySelect');
+            currentCategory = select.value;
+            loadCirculars();
+        }
+
         async function loadCirculars() {
             if (isLoading) return;
 
             showLoading();
 
             try {
-                // Load circulars data
-                const circularsResponse = await fetch('./data/latest.json');
+                // Load circulars data for current category
+                const categoryInfo = CATEGORIES[currentCategory];
+                const circularsResponse = await fetch(`./data/${categoryInfo.file}`);
+                
+                // Fallback to latest.json if category-specific file doesn't exist
+                let circulars;
                 if (!circularsResponse.ok) {
-                    throw new Error(`Failed to load circulars data (${circularsResponse.status})`);
+                    console.log(`Category file not found, falling back to latest.json`);
+                    const fallbackResponse = await fetch('./data/latest.json');
+                    if (!fallbackResponse.ok) {
+                        throw new Error(`Failed to load circulars data (${fallbackResponse.status})`);
+                    }
+                    circulars = await fallbackResponse.json();
+                } else {
+                    circulars = await circularsResponse.json();
                 }
-                const circulars = await circularsResponse.json();
 
                 // Load timestamp data
                 let timestamp = null;
@@ -434,7 +504,7 @@
                 displayCirculars(circulars, timestamp);
                 
                 if (circulars.length > 0) {
-                    showSuccess(`✅ Successfully loaded ${circulars.length} circulars from automated scraping!`);
+                    showSuccess(`✅ Successfully loaded ${circulars.length} ${categoryInfo.name.toLowerCase()}!`);
                 }
             } catch (error) {
                 showError(`Failed to load data: ${error.message}. The GitHub Actions may be updating the data.`);

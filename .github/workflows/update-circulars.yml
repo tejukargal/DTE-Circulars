@@ -30,17 +30,14 @@ jobs:
     
     - name: Run scraper and update data
       run: |
-        python scraper.py
-        
-        # Move the generated JSON to data directory
-        mkdir -p data
-        cp circulars.json data/latest.json
+        # Scrape all categories
+        python scraper.py --all
         
         # Create timestamp file
         echo "{\"last_updated\": \"$(date -u +"%Y-%m-%d %H:%M:%S UTC")\"}" > data/timestamp.json
         
         # Create a backup with timestamp
-        cp circulars.json "data/circulars-$(date +%Y%m%d-%H%M%S).json"
+        cp data/latest.json "data/backup-$(date +%Y%m%d-%H%M%S).json"
     
     - name: Configure Git
       run: |
