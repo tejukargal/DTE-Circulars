@@ -424,6 +424,12 @@
             gap: 8px;
             align-items: center;
         }
+        
+        .circular-actions .circular-link,
+        .circular-actions .share-btn {
+            flex: 1;
+            justify-content: center;
+        }
 
         @media (max-width: 768px) {
             .container {
@@ -493,14 +499,7 @@
             }
 
             .circular-actions {
-                flex-direction: column;
                 gap: 6px;
-                align-items: stretch;
-            }
-
-            .circular-link, .share-btn {
-                text-align: center;
-                justify-content: center;
             }
         }
     </style>
