@@ -1,92 +1,74 @@
-# DTE Karnataka Circulars Scraper
+# DTE Karnataka Circulars
 
-A web application to scrape and display recent circulars, notices, and government orders from the DTE Karnataka website.
+A modern web application to display recent circulars, notices, and government orders from the DTE Karnataka website.
 
-## Features
+## 🌐 Live Application
 
-- Scrapes the latest 10 circulars from DTE Karnataka website
-- Clean, organized web interface
-- JSON export functionality
-- Handles SSL certificate issues
-- Responsive design
-- Real-time refresh capability
+Visit: **[https://tejukargal.github.io/DTE-Circulars/](https://tejukargal.github.io/DTE-Circulars/)**
 
-## Installation
+## ✨ Features
 
-1. Install Python dependencies:
-```bash
-pip install -r requirements.txt
+- **Auto-Updated Data**: Refreshed every 6 hours via GitHub Actions
+- **Multi-Category Support**: DVP, Exam, ACM, and Departmental circulars
+- **Modern UI**: Clean, responsive design with dark/light mode
+- **Enhanced Cards**: Serial numbers with circular backgrounds and zoom effects
+- **Share Functionality**: Share circulars with complete details (subject, date, order number, PDF link)
+- **Mobile Optimized**: Works perfectly on all devices
+- **PDF Integration**: Direct links to official documents
+- **Export Feature**: Download data as JSON
+
+## 🎨 Design Features
+
+- Circular serial numbers with hover zoom effects
+- Clean card layout without duplicate information
+- Color-coded metadata (dates in blue, order numbers in green)
+- Responsive mobile design
+- Dark/light theme toggle
+- Professional government portal aesthetics
+
+## 📱 Mobile Support
+
+- Touch-friendly interface
+- Optimized button sizing
+- Stacked layout for small screens
+- Fast loading on mobile networks
+
+## 🔄 Data Updates
+
+The application automatically updates circular data using:
+- **GitHub Actions**: Scheduled every 6 hours
+- **Python Scraper**: Extracts data from official DTE website
+- **JSON Storage**: Structured data format for fast loading
+
+## 📂 Repository Structure
+
+```
+├── index.html              # Main application file
+├── data/                   # Circular data (auto-updated)
+│   ├── dvp.json
+│   ├── exam.json
+│   ├── acm.json
+│   ├── departmental.json
+│   ├── latest.json
+│   └── timestamp.json
+├── .github/workflows/      # Auto-update workflow
+└── README.md
 ```
 
-2. For the web app, also install Flask:
-```bash
-pip install flask
-```
+## 🚀 Technology Stack
 
-## Usage
+- **Frontend**: Pure HTML5, CSS3, JavaScript (no frameworks)
+- **Hosting**: GitHub Pages (static hosting)
+- **Data**: JSON files updated via GitHub Actions
+- **Automation**: Python scraper with scheduled workflows
 
-### 🖥️ Desktop GUI Application (Recommended)
+## 📊 Categories
 
-Double-click `start_gui.bat` or run:
-```bash
-python gui_app.py
-```
+- **DVP Circulars**: Director of Technical Education orders
+- **Exam Circulars**: Examination-related notifications  
+- **ACM Circulars**: Academic and curriculum matters
+- **Departmental Circulars**: General departmental notices
 
-Features:
-- Modern desktop interface
-- Clickable PDF links
-- Real-time refresh
-- JSON export functionality
-- No browser required
+## 🔗 Official Reference
 
-### 🌐 Web Application
-
-Double-click `start_webapp.bat` or run:
-```bash
-python web_app.py
-```
-
-Then open your browser to: `http://localhost:5000`
-
-Features:
-- Clean, responsive web interface
-- Mobile-friendly design
-- Real-time refresh capability
-- Direct PDF links
-
-### 💻 Command Line Scraper
-
-Double-click `run_scraper.bat` or run:
-```bash
-python scraper.py
-```
-
-Features:
-- Terminal-based output
-- Automatic JSON export
-- Quick data extraction
-
-## Files
-
-- `scraper.py` - Main scraping logic
-- `web_app.py` - Flask web application
-- `templates/index.html` - Web interface
-- `requirements.txt` - Python dependencies
-- `README.md` - This documentation
-
-## Technical Details
-
-The scraper handles:
-- SSL certificate verification issues
-- Multiple HTML structure patterns
-- Date extraction from various formats
-- Link resolution and normalization
-- Error handling and retry logic
-
-## Troubleshooting
-
-If the scraper returns no results:
-1. Check if the website is accessible
-2. The website structure may have changed
-3. Try running with different network settings
-4. Check the console output for specific errors
+For the most accurate and complete information, always refer to the official DTE Karnataka website.
