@@ -251,42 +251,59 @@
             box-shadow: 0 4px 20px var(--shadow-hover);
         }
 
-        .circular-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-header);
+        .circular-header {
+            display: flex;
+            align-items: center;
             margin: -18px -18px 8px -18px;
-            padding: 12px 18px;
-            line-height: 1.3;
-            text-align: justify;
             background: var(--bg-card-header);
             border-radius: 8px 8px 0 0;
             border-bottom: 1px solid var(--border-light);
             transition: background 0.3s ease;
+            min-height: 60px;
         }
 
-        .circular-title-mobile {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .serial-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            margin: 5px 15px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            font-weight: 700;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            flex-shrink: 0;
         }
 
-        .circular-full-subject {
-            margin-top: 8px;
-            padding: 8px;
-            background: var(--bg-meta-item);
-            border-radius: 4px;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            color: var(--text-light);
-            border-left: 3px solid #90caf9;
+        .serial-number:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.5);
         }
 
-        [data-theme="dark"] .circular-full-subject {
-            border-left-color: #1565c0;
+        [data-theme="dark"] .serial-number {
+            background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+            box-shadow: 0 2px 8px rgba(77, 171, 247, 0.3);
         }
+
+        [data-theme="dark"] .serial-number:hover {
+            box-shadow: 0 4px 16px rgba(77, 171, 247, 0.5);
+        }
+
+        .circular-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-header);
+            padding: 12px 18px 12px 0;
+            line-height: 1.3;
+            text-align: justify;
+            flex: 1;
+            transition: color 0.3s ease;
+        }
+
 
         .circular-meta {
             display: flex;
@@ -370,6 +387,160 @@
             transition: all 0.3s ease;
         }
 
+        /* PDF Viewer Popup Styles */
+        .pdf-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .pdf-popup {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 900px;
+            height: 85%;
+            max-height: 700px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid var(--border-light);
+        }
+
+        .pdf-popup-header {
+            background: var(--bg-card-header);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-light);
+            flex-shrink: 0;
+        }
+
+        .pdf-popup-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-header);
+            margin: 0;
+            flex: 1;
+            margin-right: 15px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pdf-popup-controls {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .pdf-control-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .pdf-control-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .pdf-control-btn.share-btn {
+            background: #28a745;
+        }
+
+        .pdf-control-btn.share-btn:hover {
+            background: #218838;
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .pdf-control-btn.close-btn {
+            background: #dc3545;
+        }
+
+        .pdf-control-btn.close-btn:hover {
+            background: #c82333;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .pdf-viewer-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pdf-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .pdf-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .pdf-loading .spinner {
+            width: 30px;
+            height: 30px;
+            margin: 0 auto 15px;
+        }
+
+        .pdf-error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-error);
+            background: var(--bg-error);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            max-width: 80%;
+        }
+
+        .pdf-error h3 {
+            margin-bottom: 10px;
+            color: var(--text-error);
+        }
+
+        .pdf-error p {
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .pdf-error .pdf-control-btn {
+            background: #007bff;
+            margin-top: 10px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -408,18 +579,21 @@
                 padding: 15px;
             }
 
-            .circular-title {
-                font-size: 1rem;
+            .circular-header {
                 margin: -15px -15px 8px -15px;
-                padding: 10px 15px;
+                min-height: 55px;
             }
 
-            .circular-title:not(.circular-title-mobile) {
-                display: none;
+            .serial-number {
+                width: 45px;
+                height: 45px;
+                margin: 5px 12px;
+                font-size: 1.2rem;
             }
 
-            .circular-title-mobile {
-                display: -webkit-box !important;
+            .circular-title {
+                font-size: 0.9rem;
+                padding: 10px 12px 10px 0;
             }
 
             .dark-mode-toggle {
@@ -427,6 +601,37 @@
                 right: 15px;
                 padding: 6px 12px;
                 font-size: 0.8rem;
+            }
+
+            .pdf-popup {
+                width: 95%;
+                height: 90%;
+                max-height: none;
+            }
+
+            .pdf-popup-header {
+                padding: 12px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .pdf-popup-title {
+                font-size: 1rem;
+                margin-right: 0;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .pdf-popup-controls {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .pdf-control-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                flex: 1;
+                max-width: 100px;
             }
         }
     </style>
@@ -476,6 +681,42 @@
         <div id="no-results" class="no-results" style="display: none;">
             <h3>No circulars found</h3>
             <p>The data might be updating. Please try refreshing in a few moments.</p>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Popup -->
+    <div id="pdfPopupOverlay" class="pdf-popup-overlay" onclick="closePDFPopup(event)">
+        <div class="pdf-popup" onclick="event.stopPropagation()">
+            <div class="pdf-popup-header">
+                <h3 class="pdf-popup-title" id="pdfPopupTitle">Document Viewer</h3>
+                <div class="pdf-popup-controls">
+                    <button class="pdf-control-btn share-btn" onclick="sharePDF()" id="sharePDFBtn">
+                        🔗 Share
+                    </button>
+                    <button class="pdf-control-btn close-btn" onclick="closePDFPopup()">
+                        ✖️ Close
+                    </button>
+                </div>
+            </div>
+            <div class="pdf-viewer-container">
+                <div class="pdf-loading" id="pdfLoading">
+                    <div class="spinner"></div>
+                    <p>Loading PDF document...</p>
+                </div>
+                <div class="pdf-error" id="pdfError" style="display: none;">
+                    <h3>⚠️ Unable to Load PDF</h3>
+                    <p>The PDF viewer couldn't load this document. This might happen due to:</p>
+                    <ul style="text-align: left; margin: 10px 0;">
+                        <li>Cross-origin restrictions</li>
+                        <li>PDF format compatibility</li>
+                        <li>Network connectivity issues</li>
+                    </ul>
+                    <button class="pdf-control-btn" onclick="openPDFInNewTab()" id="openInNewTabBtn">
+                        🔗 Open in New Tab
+                    </button>
+                </div>
+                <iframe class="pdf-iframe" id="pdfIframe" style="display: none;"></iframe>
+            </div>
         </div>
     </div>
 
@@ -605,12 +846,14 @@
             // Display circulars
             const circularsHtml = circulars.map((circular, index) => {
                 const titleText = `${index + 1}. ${escapeHtml(circular.title)}`;
-                const isMobile = window.innerWidth <= 768;
                 
                 return `
                 <div class="circular-item">
-                    <div class="circular-title ${isMobile ? 'circular-title-mobile' : ''}">
-                        ${titleText}
+                    <div class="circular-header">
+                        <div class="serial-number">${index + 1}</div>
+                        <div class="circular-title">
+                            ${escapeHtml(circular.title)}
+                        </div>
                     </div>
                     <div class="circular-meta">
                         <div class="meta-item">
@@ -618,27 +861,14 @@
                             <span class="meta-date">${escapeHtml(circular.date)}</span>
                             <span> • DTE Karnataka</span>
                         </div>
-                        ${circular.order_number ? `
-                        <div class="meta-item">
-                            <span>📋</span>
-                            <span>Order: </span>
-                            <span class="meta-order">${escapeHtml(circular.order_number)}</span>
-                        </div>
-                        ` : ''}
                     </div>
-                    ${isMobile ? `
-                        <div class="circular-full-subject">
-                            <strong>📋 Full Subject:</strong><br>
-                            ${titleText}
-                        </div>
-                    ` : ''}
                     <div class="circular-description">
                         ${escapeHtml(circular.description)}
                     </div>
                     ${circular.link ? `
-                        <a href="${escapeHtml(circular.link)}" target="_blank" class="circular-link">
+                        <button onclick="openPDFPopup('${escapeHtml(circular.link)}', '${escapeHtml(circular.title)}')" class="circular-link">
                             📄 View Document
-                        </a>
+                        </button>
                     ` : ''}
                 </div>
             `;
@@ -755,7 +985,140 @@
                 e.preventDefault();
                 loadCirculars();
             }
+            // Close PDF popup with Escape key
+            if (e.key === 'Escape') {
+                closePDFPopup();
+            }
         });
+
+        // PDF Popup Functionality
+        let currentPDFUrl = '';
+        let currentPDFTitle = '';
+
+        function openPDFPopup(pdfUrl, title) {
+            currentPDFUrl = pdfUrl;
+            currentPDFTitle = title;
+            
+            const overlay = document.getElementById('pdfPopupOverlay');
+            const titleElement = document.getElementById('pdfPopupTitle');
+            const iframe = document.getElementById('pdfIframe');
+            const loading = document.getElementById('pdfLoading');
+            const error = document.getElementById('pdfError');
+            
+            // Set title
+            titleElement.textContent = title;
+            
+            // Show popup
+            overlay.style.display = 'flex';
+            
+            // Reset states
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            iframe.style.display = 'none';
+            
+            // Try to load PDF
+            const pdfViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+            
+            iframe.onload = function() {
+                loading.style.display = 'none';
+                iframe.style.display = 'block';
+            };
+            
+            iframe.onerror = function() {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+            };
+            
+            // Set timeout to show error if loading takes too long
+            setTimeout(() => {
+                if (loading.style.display !== 'none') {
+                    loading.style.display = 'none';
+                    error.style.display = 'block';
+                }
+            }, 10000);
+            
+            iframe.src = pdfViewerUrl;
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePDFPopup(event) {
+            // Only close if clicking on overlay or called directly
+            if (event && event.target.className !== 'pdf-popup-overlay') {
+                return;
+            }
+            
+            const overlay = document.getElementById('pdfPopupOverlay');
+            const iframe = document.getElementById('pdfIframe');
+            
+            overlay.style.display = 'none';
+            iframe.src = '';
+            
+            // Restore body scroll
+            document.body.style.overflow = 'auto';
+        }
+
+        function sharePDF() {
+            if (!currentPDFUrl) {
+                showError('No PDF URL to share.');
+                return;
+            }
+            
+            // Try to use Web Share API if available
+            if (navigator.share) {
+                navigator.share({
+                    title: currentPDFTitle,
+                    text: `Check out this DTE Karnataka circular: ${currentPDFTitle}`,
+                    url: currentPDFUrl
+                }).then(() => {
+                    showSuccess('📤 PDF shared successfully!');
+                }).catch((error) => {
+                    console.log('Error sharing:', error);
+                    fallbackShare();
+                });
+            } else {
+                fallbackShare();
+            }
+        }
+
+        function fallbackShare() {
+            // Fallback: Copy URL to clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(currentPDFUrl).then(() => {
+                    showSuccess('🔗 PDF link copied to clipboard!');
+                }).catch(() => {
+                    manualCopyShare();
+                });
+            } else {
+                manualCopyShare();
+            }
+        }
+
+        function manualCopyShare() {
+            // Manual copy fallback
+            const textArea = document.createElement('textarea');
+            textArea.value = currentPDFUrl;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showSuccess('🔗 PDF link copied to clipboard!');
+            } catch (err) {
+                prompt('Copy this link to share the PDF:', currentPDFUrl);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function openPDFInNewTab() {
+            if (currentPDFUrl) {
+                window.open(currentPDFUrl, '_blank');
+                showSuccess('🔗 PDF opened in new tab!');
+            }
+        }
     </script>
 </body>
 </html>
