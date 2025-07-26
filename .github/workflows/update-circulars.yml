@@ -71,16 +71,7 @@ jobs:
           echo "No changes to commit"
         else
           echo "Committing changes..."
-          
-          git commit -m "Auto-update circulars data
-
-Updated: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
-
-Latest DTE Karnataka circulars scraped automatically
-Data available at data/latest.json
-Updates every 30 minutes
-
-Co-Authored-By: GitHub Actions <action@github.com>"
+          git commit -m "Auto-update circulars data - $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
           
           echo "Pushing to remote..."
           git push
