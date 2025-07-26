@@ -715,7 +715,7 @@
                             <a href="${escapeHtml(circular.link)}" target="_blank" class="circular-link">
                                 📄 View Document
                             </a>
-                            <button onclick="shareCircular('${escapeHtml(circular.link)}', '${escapeHtml(cleanTitle)}', '${escapeHtml(circular.date)}', '${escapeHtml(circular.order_number || '')}')" class="share-btn">
+                            <button onclick="shareCircular('${escapeHtml(circular.link)}', '${escapeHtml(cleanTitle)}', '${escapeHtml(circular.date)}', '${escapeHtml(circular.order_number || '')}', '${currentCategory}')" class="share-btn">
                                 🔗 Share
                             </button>
                         </div>
@@ -838,15 +838,20 @@
         });
 
         // Share Circular Functionality
-        function shareCircular(pdfUrl, title, date, orderNumber) {
-            // Build comprehensive share message
-            let shareText = `📄 DTE Karnataka Circular\n\n`;
-            shareText += `📋 Subject: ${title}\n`;
-            shareText += `📅 Date: ${date}\n`;
+        function shareCircular(pdfUrl, title, date, orderNumber, category) {
+            // Get department name from category
+            const departmentName = CATEGORIES[category] ? CATEGORIES[category].name : 'DTE Karnataka';
+            
+            // Build comprehensive share message with enhanced formatting
+            let shareText = `📄 DTE Karnataka Circular\n`;
+            shareText += `🏛️ Department: ${departmentName}\n\n`;
+            shareText += `📋 Subject: **${title}**\n\n`;
+            shareText += `📅 Date: __${date}__\n\n`;
             if (orderNumber) {
-                shareText += `🔢 Order No: ${orderNumber}\n`;
+                shareText += `🔢 Order No: __${orderNumber}__\n\n`;
             }
-            shareText += `\n🔗 Document Link: ${pdfUrl}`;
+            shareText += `${'─'.repeat(40)}\n`;
+            shareText += `🔗 Document Link: ${pdfUrl}`;
             
             // Try to use Web Share API if available
             if (navigator.share) {
