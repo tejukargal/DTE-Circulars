@@ -713,16 +713,10 @@
                         ${escapeHtml(circular.description)}
                     </div>
                     <div class="circular-actions">
-                        ${circular.link ? `
-                            <a href="${escapeHtml(circular.link)}" target="_blank" class="circular-link">
-                                📄 View Document
-                            </a>
-                        ` : `
-                            <button class="circular-link" style="opacity: 0.6; cursor: not-allowed;" disabled>
-                                📄 No Document
-                            </button>
-                        `}
-                        <button onclick="shareCircular('${escapeHtml(circular.link || 'N/A')}', '${escapeHtml(cleanTitle)}', '${escapeHtml(circular.date)}', '${escapeHtml(circular.order_number || '')}', '${currentCategory}')" class="share-btn">
+                        <a href="${circular.link && circular.link !== null ? escapeHtml(circular.link) : generatePDFLink(circular, currentCategory)}" target="_blank" class="circular-link">
+                            📄 View Document
+                        </a>
+                        <button onclick="shareCircular('${circular.link && circular.link !== null ? escapeHtml(circular.link) : generatePDFLink(circular, currentCategory)}', '${escapeHtml(cleanTitle)}', '${escapeHtml(circular.date)}', '${escapeHtml(circular.order_number || '')}', '${currentCategory}')" class="share-btn">
                             🔗 Share
                         </button>
                     </div>
@@ -843,6 +837,22 @@
             }
         });
 
+        // Generate PDF link for circulars without direct links
+        function generatePDFLink(circular, category) {
+            if (circular.link && circular.link !== null) {
+                return circular.link;
+            }
+            
+            // For departmental circulars without direct links, use the departmental orders page
+            // where users can find and access the actual PDF documents
+            if (category === 'Departmental') {
+                return 'https://dtek.karnataka.gov.in/en/departmental-order';
+            }
+            
+            // For other categories, fallback to the main website
+            return 'https://dtek.karnataka.gov.in/';
+        }
+
         // Share Circular Functionality
         function shareCircular(pdfUrl, title, date, orderNumber, category) {
             // Get department name from category
@@ -911,6 +921,7 @@
             
             document.body.removeChild(textArea);
         }
+
     </script>
 </body>
 </html>
