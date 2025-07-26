@@ -4,8 +4,6 @@ on:
   schedule:
     # Run every 30 minutes
     - cron: '*/30 * * * *'
-    # Alternative: Run every hour (uncomment line below and comment line above)
-    # - cron: '0 * * * *'
   workflow_dispatch: # Allow manual trigger
   push:
     branches: [ master ]
@@ -28,9 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests beautifulsoup4 lxml urllib3
-        # Install certificates for SSL
-        pip install certifi
+        pip install requests beautifulsoup4 lxml urllib3 certifi
     
     - name: Run scraper and update data
       run: |
@@ -46,7 +42,7 @@ jobs:
         python advanced_scraper.py --all --verbose
         
         # Create timestamp file
-        echo "{\"last_updated\": \"$(date -u +"%Y-%m-%d %H:%M:%S UTC")\"}" > data/timestamp.json
+        echo '{"last_updated": "'$(date -u +'%Y-%m-%d %H:%M:%S UTC')'"}' > data/timestamp.json
         
         # Create a backup with timestamp if latest.json exists
         if [ -f "data/latest.json" ]; then
@@ -86,9 +82,9 @@ jobs:
           echo "No changes to commit"
         else
           echo "Committing changes..."
-          git commit -m "Auto-update circulars data (30min schedule)
+          COMMIT_MSG="Auto-update circulars data (30min schedule)
 
-Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+Updated: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
 
 Latest DTE Karnataka circulars scraped automatically
 Data available at: data/latest.json
@@ -96,7 +92,9 @@ Updates every 30 minutes
 
 Co-Authored-By: GitHub Actions <action@github.com>"
           
+          git commit -m "$COMMIT_MSG"
+          
           echo "Pushing to remote..."
           git push
-          echo "✅ Data updated successfully!"
+          echo "Data updated successfully!"
         fi
