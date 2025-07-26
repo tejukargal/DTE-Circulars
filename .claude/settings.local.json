@@ -13,7 +13,15 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(copy circulars.json datalatest.json)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(gh repo view:*)",
+      "Bash(git rm:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(source:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

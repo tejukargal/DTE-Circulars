@@ -2,8 +2,10 @@ name: Update DTE Circulars Data
 
 on:
   schedule:
-    # Run every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
-    - cron: '0 */6 * * *'
+    # Run every 30 minutes
+    - cron: '*/30 * * * *'
+    # Alternative: Run every hour (uncomment line below and comment line above)
+    # - cron: '0 * * * *'
   workflow_dispatch: # Allow manual trigger
   push:
     branches: [ main ]
@@ -53,12 +55,13 @@ jobs:
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
-          git commit -m "🤖 Auto-update circulars data
+          git commit -m "🤖 Auto-update circulars data (30min schedule)
 
 Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
           
 🔍 Latest DTE Karnataka circulars scraped automatically
 📊 Data available at: data/latest.json
+⏰ Updates every 30 minutes
 
 Co-Authored-By: GitHub Actions <action@github.com>"
           
