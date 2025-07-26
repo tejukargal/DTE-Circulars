@@ -29,11 +29,21 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install requests beautifulsoup4 lxml urllib3
+        # Install certificates for SSL
+        pip install certifi
     
     - name: Run scraper and update data
       run: |
+        # Test connection first
+        echo "Testing connection to DTE website..."
+        python advanced_scraper.py --test
+        
+        # Create data directory if it doesn't exist
+        mkdir -p data
+        
         # Scrape all categories using advanced scraper
-        python advanced_scraper.py --all
+        echo "Starting scraper with --all flag..."
+        python advanced_scraper.py --all --verbose
         
         # Create timestamp file
         echo "{\"last_updated\": \"$(date -u +"%Y-%m-%d %H:%M:%S UTC")\"}" > data/timestamp.json
@@ -41,7 +51,12 @@ jobs:
         # Create a backup with timestamp if latest.json exists
         if [ -f "data/latest.json" ]; then
           cp data/latest.json "data/backup-$(date +%Y%m%d-%H%M%S).json"
+          echo "Created backup of latest.json"
         fi
+        
+        # List what files were created
+        echo "Files in data directory:"
+        ls -la data/
     
     - name: Configure Git
       run: |
@@ -50,12 +65,27 @@ jobs:
     
     - name: Commit and push changes
       run: |
-        git add data/
+        # Check what files exist before adding
+        echo "Current working directory contents:"
+        ls -la
+        
+        # Add data directory if it exists
+        if [ -d "data" ]; then
+          git add data/
+          echo "Added data/ directory to git"
+        else
+          echo "No data directory found"
+        fi
+        
+        # Check git status
+        echo "Git status before commit:"
+        git status
         
         # Only commit if there are changes
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
+          echo "Committing changes..."
           git commit -m "🤖 Auto-update circulars data (30min schedule)
 
 Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -66,6 +96,7 @@ Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
 Co-Authored-By: GitHub Actions <action@github.com>"
           
+          echo "Pushing to remote..."
           git push
           echo "✅ Data updated successfully!"
         fi
