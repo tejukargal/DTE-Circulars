@@ -844,15 +844,14 @@
             // Get department name from category
             const departmentName = CATEGORIES[category] ? CATEGORIES[category].name : 'DTE Karnataka';
             
-            // Build comprehensive share message with enhanced formatting
+            // Build comprehensive share message with clean formatting
             let shareText = `📄 DTE Karnataka Circular\n`;
             shareText += `🏛️ Department: ${departmentName}\n\n`;
-            shareText += `📋 Subject: **${title}**\n\n`;
-            shareText += `📅 Date: __${date}__\n\n`;
+            shareText += `**Subject:** ${title}\n\n`;
+            shareText += `**Date:** ${date}\n\n`;
             if (orderNumber) {
-                shareText += `🔢 Order No: __${orderNumber}__\n\n`;
+                shareText += `**Order No:** ${orderNumber}\n\n`;
             }
-            shareText += `${'─'.repeat(40)}\n`;
             shareText += `🔗 Document Link: ${pdfUrl}`;
             
             // Try to use Web Share API if available
