@@ -99,6 +99,14 @@
             opacity: 0.9;
         }
 
+        .header-notice {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 8px;
+            line-height: 1.3;
+            color: var(--text-secondary);
+        }
+
         .controls {
             display: flex;
             justify-content: center;
@@ -352,18 +360,40 @@
         }
 
         .circular-link {
-            display: inline-block;
             background: #007bff;
             color: white;
+            border: none;
             padding: 6px 12px;
             text-decoration: none;
             border-radius: 4px;
             font-size: 0.8rem;
             transition: background 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .circular-link:hover {
             background: #0056b3;
+        }
+
+        .share-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .share-btn:hover {
+            background: #218838;
         }
 
         .stats {
@@ -387,158 +417,10 @@
             transition: all 0.3s ease;
         }
 
-        /* PDF Viewer Popup Styles */
-        .pdf-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
+        .circular-actions {
+            display: flex;
+            gap: 8px;
             align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .pdf-popup {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            width: 90%;
-            max-width: 900px;
-            height: 85%;
-            max-height: 700px;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 2px solid var(--border-light);
-        }
-
-        .pdf-popup-header {
-            background: var(--bg-card-header);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--border-light);
-            flex-shrink: 0;
-        }
-
-        .pdf-popup-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-header);
-            margin: 0;
-            flex: 1;
-            margin-right: 15px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .pdf-popup-controls {
-            display: flex;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .pdf-control-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .pdf-control-btn:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-        }
-
-        .pdf-control-btn.share-btn {
-            background: #28a745;
-        }
-
-        .pdf-control-btn.share-btn:hover {
-            background: #218838;
-            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-        }
-
-        .pdf-control-btn.close-btn {
-            background: #dc3545;
-        }
-
-        .pdf-control-btn.close-btn:hover {
-            background: #c82333;
-            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-        }
-
-        .pdf-viewer-container {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .pdf-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-        }
-
-        .pdf-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-secondary);
-        }
-
-        .pdf-loading .spinner {
-            width: 30px;
-            height: 30px;
-            margin: 0 auto 15px;
-        }
-
-        .pdf-error {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-error);
-            background: var(--bg-error);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #f5c6cb;
-            max-width: 80%;
-        }
-
-        .pdf-error h3 {
-            margin-bottom: 10px;
-            color: var(--text-error);
-        }
-
-        .pdf-error p {
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-
-        .pdf-error .pdf-control-btn {
-            background: #007bff;
-            margin-top: 10px;
         }
 
         @media (max-width: 768px) {
@@ -548,6 +430,11 @@
             
             .header h1 {
                 font-size: 2rem;
+            }
+
+            .header-notice {
+                font-size: 0.75rem;
+                margin-top: 6px;
             }
             
             .circular-meta {
@@ -603,35 +490,15 @@
                 font-size: 0.8rem;
             }
 
-            .pdf-popup {
-                width: 95%;
-                height: 90%;
-                max-height: none;
+            .circular-actions {
+                flex-direction: column;
+                gap: 6px;
+                align-items: stretch;
             }
 
-            .pdf-popup-header {
-                padding: 12px 15px;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .pdf-popup-title {
-                font-size: 1rem;
-                margin-right: 0;
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-            .pdf-popup-controls {
-                width: 100%;
+            .circular-link, .share-btn {
+                text-align: center;
                 justify-content: center;
-            }
-
-            .pdf-control-btn {
-                padding: 8px 12px;
-                font-size: 0.85rem;
-                flex: 1;
-                max-width: 100px;
             }
         }
     </style>
@@ -644,6 +511,9 @@
             </button>
             <h1>DTE Karnataka Circulars</h1>
             <p>Latest Government Orders, Circulars & Notices</p>
+            <div class="header-notice">
+                🔄 Refresh the app for recent circulars • Visit the official DTEK website for accurate results
+            </div>
         </div>
 
         <div class="info" id="autoUpdateInfo">
@@ -684,41 +554,6 @@
         </div>
     </div>
 
-    <!-- PDF Viewer Popup -->
-    <div id="pdfPopupOverlay" class="pdf-popup-overlay" onclick="closePDFPopup(event)">
-        <div class="pdf-popup" onclick="event.stopPropagation()">
-            <div class="pdf-popup-header">
-                <h3 class="pdf-popup-title" id="pdfPopupTitle">Document Viewer</h3>
-                <div class="pdf-popup-controls">
-                    <button class="pdf-control-btn share-btn" onclick="sharePDF()" id="sharePDFBtn">
-                        🔗 Share
-                    </button>
-                    <button class="pdf-control-btn close-btn" onclick="closePDFPopup()">
-                        ✖️ Close
-                    </button>
-                </div>
-            </div>
-            <div class="pdf-viewer-container">
-                <div class="pdf-loading" id="pdfLoading">
-                    <div class="spinner"></div>
-                    <p>Loading PDF document...</p>
-                </div>
-                <div class="pdf-error" id="pdfError" style="display: none;">
-                    <h3>⚠️ Unable to Load PDF</h3>
-                    <p>The PDF viewer couldn't load this document. This might happen due to:</p>
-                    <ul style="text-align: left; margin: 10px 0;">
-                        <li>Cross-origin restrictions</li>
-                        <li>PDF format compatibility</li>
-                        <li>Network connectivity issues</li>
-                    </ul>
-                    <button class="pdf-control-btn" onclick="openPDFInNewTab()" id="openInNewTabBtn">
-                        🔗 Open in New Tab
-                    </button>
-                </div>
-                <iframe class="pdf-iframe" id="pdfIframe" style="display: none;"></iframe>
-            </div>
-        </div>
-    </div>
 
     <script>
         let isLoading = false;
@@ -845,14 +680,17 @@
 
             // Display circulars
             const circularsHtml = circulars.map((circular, index) => {
-                const titleText = `${index + 1}. ${escapeHtml(circular.title)}`;
+                // Clean title by removing order number pattern from the beginning
+                let cleanTitle = circular.title;
+                // Remove patterns like "ಚಿತ್ರ/ಎಸಿಎಂಒಣ/ಫಾರ್ಮ್ ಎ(7)/139/2025:" from the beginning
+                cleanTitle = cleanTitle.replace(/^[^:]+:\s*/, '');
                 
                 return `
                 <div class="circular-item">
                     <div class="circular-header">
                         <div class="serial-number">${index + 1}</div>
                         <div class="circular-title">
-                            ${escapeHtml(circular.title)}
+                            ${escapeHtml(cleanTitle)}
                         </div>
                     </div>
                     <div class="circular-meta">
@@ -861,14 +699,26 @@
                             <span class="meta-date">${escapeHtml(circular.date)}</span>
                             <span> • DTE Karnataka</span>
                         </div>
+                        ${circular.order_number ? `
+                        <div class="meta-item">
+                            <span>📋</span>
+                            <span>Order: </span>
+                            <span class="meta-order">${escapeHtml(circular.order_number)}</span>
+                        </div>
+                        ` : ''}
                     </div>
                     <div class="circular-description">
                         ${escapeHtml(circular.description)}
                     </div>
                     ${circular.link ? `
-                        <button onclick="openPDFPopup('${escapeHtml(circular.link)}', '${escapeHtml(circular.title)}')" class="circular-link">
-                            📄 View Document
-                        </button>
+                        <div class="circular-actions">
+                            <a href="${escapeHtml(circular.link)}" target="_blank" class="circular-link">
+                                📄 View Document
+                            </a>
+                            <button onclick="shareCircular('${escapeHtml(circular.link)}', '${escapeHtml(cleanTitle)}', '${escapeHtml(circular.date)}', '${escapeHtml(circular.order_number || '')}')" class="share-btn">
+                                🔗 Share
+                            </button>
+                        </div>
                     ` : ''}
                 </div>
             `;
@@ -985,139 +835,65 @@
                 e.preventDefault();
                 loadCirculars();
             }
-            // Close PDF popup with Escape key
-            if (e.key === 'Escape') {
-                closePDFPopup();
-            }
         });
 
-        // PDF Popup Functionality
-        let currentPDFUrl = '';
-        let currentPDFTitle = '';
-
-        function openPDFPopup(pdfUrl, title) {
-            currentPDFUrl = pdfUrl;
-            currentPDFTitle = title;
-            
-            const overlay = document.getElementById('pdfPopupOverlay');
-            const titleElement = document.getElementById('pdfPopupTitle');
-            const iframe = document.getElementById('pdfIframe');
-            const loading = document.getElementById('pdfLoading');
-            const error = document.getElementById('pdfError');
-            
-            // Set title
-            titleElement.textContent = title;
-            
-            // Show popup
-            overlay.style.display = 'flex';
-            
-            // Reset states
-            loading.style.display = 'block';
-            error.style.display = 'none';
-            iframe.style.display = 'none';
-            
-            // Try to load PDF
-            const pdfViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
-            
-            iframe.onload = function() {
-                loading.style.display = 'none';
-                iframe.style.display = 'block';
-            };
-            
-            iframe.onerror = function() {
-                loading.style.display = 'none';
-                error.style.display = 'block';
-            };
-            
-            // Set timeout to show error if loading takes too long
-            setTimeout(() => {
-                if (loading.style.display !== 'none') {
-                    loading.style.display = 'none';
-                    error.style.display = 'block';
-                }
-            }, 10000);
-            
-            iframe.src = pdfViewerUrl;
-            
-            // Prevent body scroll
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closePDFPopup(event) {
-            // Only close if clicking on overlay or called directly
-            if (event && event.target.className !== 'pdf-popup-overlay') {
-                return;
+        // Share Circular Functionality
+        function shareCircular(pdfUrl, title, date, orderNumber) {
+            // Build comprehensive share message
+            let shareText = `📄 DTE Karnataka Circular\n\n`;
+            shareText += `📋 Subject: ${title}\n`;
+            shareText += `📅 Date: ${date}\n`;
+            if (orderNumber) {
+                shareText += `🔢 Order No: ${orderNumber}\n`;
             }
-            
-            const overlay = document.getElementById('pdfPopupOverlay');
-            const iframe = document.getElementById('pdfIframe');
-            
-            overlay.style.display = 'none';
-            iframe.src = '';
-            
-            // Restore body scroll
-            document.body.style.overflow = 'auto';
-        }
-
-        function sharePDF() {
-            if (!currentPDFUrl) {
-                showError('No PDF URL to share.');
-                return;
-            }
+            shareText += `\n🔗 Document Link: ${pdfUrl}`;
             
             // Try to use Web Share API if available
             if (navigator.share) {
                 navigator.share({
-                    title: currentPDFTitle,
-                    text: `Check out this DTE Karnataka circular: ${currentPDFTitle}`,
-                    url: currentPDFUrl
+                    title: `DTE Karnataka Circular - ${title}`,
+                    text: shareText,
+                    url: pdfUrl
                 }).then(() => {
-                    showSuccess('📤 PDF shared successfully!');
+                    showSuccess('📤 Circular shared successfully!');
                 }).catch((error) => {
                     console.log('Error sharing:', error);
-                    fallbackShare();
+                    fallbackShareCircular(shareText);
                 });
             } else {
-                fallbackShare();
+                fallbackShareCircular(shareText);
             }
         }
 
-        function fallbackShare() {
-            // Fallback: Copy URL to clipboard
+        function fallbackShareCircular(shareText) {
+            // Fallback: Copy formatted text to clipboard
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(currentPDFUrl).then(() => {
-                    showSuccess('🔗 PDF link copied to clipboard!');
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showSuccess('🔗 Circular details copied to clipboard!');
                 }).catch(() => {
-                    manualCopyShare();
+                    manualShareCircular(shareText);
                 });
             } else {
-                manualCopyShare();
+                manualShareCircular(shareText);
             }
         }
 
-        function manualCopyShare() {
+        function manualShareCircular(shareText) {
             // Manual copy fallback
             const textArea = document.createElement('textarea');
-            textArea.value = currentPDFUrl;
+            textArea.value = shareText;
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
             
             try {
                 document.execCommand('copy');
-                showSuccess('🔗 PDF link copied to clipboard!');
+                showSuccess('📋 Circular details copied to clipboard!');
             } catch (err) {
-                prompt('Copy this link to share the PDF:', currentPDFUrl);
+                prompt('Copy this circular information to share:', shareText);
             }
             
             document.body.removeChild(textArea);
-        }
-
-        function openPDFInNewTab() {
-            if (currentPDFUrl) {
-                window.open(currentPDFUrl, '_blank');
-                showSuccess('🔗 PDF opened in new tab!');
-            }
         }
     </script>
 </body>
