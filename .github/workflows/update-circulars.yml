@@ -2,9 +2,8 @@ name: Update DTE Circulars Data
 
 on:
   schedule:
-    # Run every 30 minutes
     - cron: '*/30 * * * *'
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
   push:
     branches: [ master ]
 
@@ -30,27 +29,21 @@ jobs:
     
     - name: Run scraper and update data
       run: |
-        # Test connection first
         echo "Testing connection to DTE website..."
         python advanced_scraper.py --test
         
-        # Create data directory if it doesn't exist
         mkdir -p data
         
-        # Scrape all categories using advanced scraper
         echo "Starting scraper with --all flag..."
         python advanced_scraper.py --all --verbose
         
-        # Create timestamp file
         echo '{"last_updated": "'$(date -u +'%Y-%m-%d %H:%M:%S UTC')'"}' > data/timestamp.json
         
-        # Create a backup with timestamp if latest.json exists
         if [ -f "data/latest.json" ]; then
           cp data/latest.json "data/backup-$(date +%Y%m%d-%H%M%S).json"
           echo "Created backup of latest.json"
         fi
         
-        # List what files were created
         echo "Files in data directory:"
         ls -la data/
     
@@ -61,11 +54,9 @@ jobs:
     
     - name: Commit and push changes
       run: |
-        # Check what files exist before adding
         echo "Current working directory contents:"
         ls -la
         
-        # Add data directory if it exists
         if [ -d "data" ]; then
           git add data/
           echo "Added data/ directory to git"
@@ -73,26 +64,23 @@ jobs:
           echo "No data directory found"
         fi
         
-        # Check git status
         echo "Git status before commit:"
         git status
         
-        # Only commit if there are changes
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
           echo "Committing changes..."
-          COMMIT_MSG="Auto-update circulars data (30min schedule)
+          
+          git commit -m "Auto-update circulars data
 
 Updated: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
 
 Latest DTE Karnataka circulars scraped automatically
-Data available at: data/latest.json
+Data available at data/latest.json
 Updates every 30 minutes
 
 Co-Authored-By: GitHub Actions <action@github.com>"
-          
-          git commit -m "$COMMIT_MSG"
           
           echo "Pushing to remote..."
           git push
