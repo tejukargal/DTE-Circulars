@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DTE Karnataka Circulars</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             /* Light mode variables */
@@ -146,39 +148,100 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .category-select {
-            padding: 12px 16px;
-            font-size: 1rem;
-            border: 2px solid #007bff;
-            border-radius: 5px;
+        .tabs-container {
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 100;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-light);
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tab {
             background: var(--bg-secondary);
             color: var(--text-primary);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 12px 20px;
             cursor: pointer;
-            min-width: 200px;
+            font-size: 0.9rem;
+            font-weight: 600;
             transition: all 0.3s ease;
+            white-space: nowrap;
+            user-select: none;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .tab:hover {
+            background: #e3f2fd;
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-hover);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-color: #0056b3;
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+        }
+
+        [data-theme="dark"] .tab {
+            background: var(--bg-secondary);
+            border-color: var(--border-light);
+        }
+
+        [data-theme="dark"] .tab:hover {
+            background: #1e3a8a;
+            border-color: #4dabf7;
+        }
+
+        [data-theme="dark"] .tab.active {
+            background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+            border-color: #339af0;
+            box-shadow: 0 4px 16px rgba(77, 171, 247, 0.3);
         }
 
         .refresh-btn, .export-btn {
-            background: #28a745;
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+            border: 2px solid #81c784;
             padding: 12px 24px;
             font-size: 1rem;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 600;
         }
 
         .export-btn {
-            background: #007bff;
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            color: #0277bd;
+            border-color: #4fc3f7;
         }
 
         .refresh-btn:hover {
-            background: #218838;
+            background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
         .export-btn:hover {
-            background: #0056b3;
+            background: linear-gradient(135deg, #b3e5fc 0%, #81d4fa 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
         }
 
         .refresh-btn:disabled, .export-btn:disabled {
@@ -277,14 +340,15 @@
             width: 50px;
             height: 50px;
             margin: 5px 15px;
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
             border-radius: 50%;
             font-size: 1.4rem;
             font-weight: 700;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
             flex-shrink: 0;
+            border: 2px solid #90caf9;
         }
 
         .serial-number:hover {
@@ -293,8 +357,10 @@
         }
 
         [data-theme="dark"] .serial-number {
-            background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
-            box-shadow: 0 2px 8px rgba(77, 171, 247, 0.3);
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: #93c5fd;
+            box-shadow: 0 2px 8px rgba(147, 197, 253, 0.3);
+            border-color: #3b82f6;
         }
 
         [data-theme="dark"] .serial-number:hover {
@@ -302,11 +368,11 @@
         }
 
         .circular-title {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: var(--text-header);
             padding: 12px 18px 12px 0;
-            line-height: 1.3;
+            line-height: 1.4;
             text-align: justify;
             flex: 1;
             transition: color 0.3s ease;
@@ -318,7 +384,7 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 10px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
         }
 
@@ -354,20 +420,21 @@
         .circular-description {
             color: var(--text-light);
             margin-bottom: 12px;
-            line-height: 1.4;
-            font-size: 0.9rem;
+            line-height: 1.5;
+            font-size: 0.95rem;
             transition: color 0.3s ease;
         }
 
         .circular-link {
-            background: #007bff;
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            color: #0277bd;
+            border: 2px solid #4fc3f7;
             padding: 10px 16px;
             text-decoration: none;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            transition: background 0.3s;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -376,17 +443,20 @@
         }
 
         .circular-link:hover {
-            background: #0056b3;
+            background: linear-gradient(135deg, #b3e5fc 0%, #81d4fa 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(33, 150, 243, 0.3);
         }
 
         .share-btn {
-            background: #28a745;
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+            border: 2px solid #81c784;
             padding: 10px 16px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            transition: background 0.3s;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -395,7 +465,9 @@
         }
 
         .share-btn:hover {
-            background: #218838;
+            background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
         }
 
         .stats {
@@ -464,10 +536,28 @@
                 font-size: 0.9rem;
             }
 
-            .category-select {
-                width: 100%;
-                margin-bottom: 10px;
-                order: -1;
+            .tabs {
+                gap: 4px;
+                padding: 0 10px;
+                overflow-x: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .tab {
+                font-size: 0.8rem;
+                padding: 10px 12px;
+                min-width: 80px;
+                flex-shrink: 0;
+            }
+            
+            .tabs-container {
+                padding: 8px 0;
+                margin-bottom: 15px;
             }
 
             .circular-item {
@@ -523,18 +613,29 @@
             Fresh circulars automatically scraped from DTE website - No CORS issues, reliable and fast!
         </div>
 
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" data-category="Departmental" onclick="changeCategory('Departmental')">
+                    🏛️ Departmental
+                </div>
+                <div class="tab" data-category="DVP" onclick="changeCategory('DVP')">
+                    📋 DVP
+                </div>
+                <div class="tab" data-category="Exam" onclick="changeCategory('Exam')">
+                    📝 Exam
+                </div>
+                <div class="tab" data-category="ACM" onclick="changeCategory('ACM')">
+                    🎓 ACM
+                </div>
+            </div>
+        </div>
+
         <div class="controls">
-            <select class="category-select" id="categorySelect" onchange="changeCategory()">
-                <option value="Departmental">Departmental Circulars</option>
-                <option value="DVP">DVP Circulars</option>
-                <option value="Exam">Exam Circulars</option>
-                <option value="ACM">ACM Circulars</option>
-            </select>
             <button class="refresh-btn" onclick="loadCirculars()">
                 🔄 Refresh Data
             </button>
-            <button class="export-btn" onclick="exportData()" id="exportBtn" style="display: none;">
-                📥 Export JSON
+            <button class="export-btn" onclick="exportToPDF()" id="exportBtn" style="display: none;">
+                📄 Export PDF
             </button>
         </div>
 
@@ -734,30 +835,195 @@
             return div.innerHTML;
         }
 
-        function exportData() {
+        async function exportToPDF() {
             if (circularsData.length === 0) {
                 showError('No data to export. Please refresh first.');
                 return;
             }
 
-            const dataStr = JSON.stringify(circularsData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `dte_circulars_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showSuccess('📥 Data exported successfully!');
+            try {
+                // Show loading state
+                const exportBtn = document.getElementById('exportBtn');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '🔄 Generating PDF...';
+                exportBtn.disabled = true;
+
+                // Create a temporary container for PDF content
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.cssText = `
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                    width: 800px;
+                    background: white;
+                    padding: 40px;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    color: #333;
+                    line-height: 1.6;
+                `;
+
+                // Create PDF content with proper Kannada support
+                const categoryInfo = CATEGORIES[currentCategory];
+                let pdfContent = `
+                    <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #007bff; padding-bottom: 20px;">
+                        <h1 style="font-size: 24px; margin: 0; color: #007bff;">DTE Karnataka Circulars</h1>
+                        <p style="font-size: 16px; margin: 10px 0; color: #666;">Department: ${categoryInfo.name}</p>
+                        <p style="font-size: 14px; margin: 5px 0; color: #666;">Generated on: ${new Date().toLocaleDateString('en-IN')}</p>
+                    </div>
+                `;
+
+                // Add each circular
+                circularsData.forEach((circular, index) => {
+                    let cleanTitle = circular.title.replace(/^[^:]+:\s*/, '');
+                    
+                    pdfContent += `
+                        <div style="margin-bottom: 30px; page-break-inside: avoid;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff; margin-bottom: 15px;">
+                                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #007bff;">
+                                    ${index + 1}. ${cleanTitle}
+                                </h3>
+                            </div>
+                            
+                            <div style="padding-left: 20px;">
+                                <p style="margin: 8px 0; font-size: 14px;">
+                                    <strong>📅 Date:</strong> ${circular.date}
+                                </p>
+                                
+                                ${circular.order_number ? `
+                                    <p style="margin: 8px 0; font-size: 14px;">
+                                        <strong>📋 Order No:</strong> ${circular.order_number}
+                                    </p>
+                                ` : ''}
+                                
+                                <p style="margin: 8px 0; font-size: 14px;">
+                                    <strong>🏛️ Department:</strong> ${categoryInfo.name}
+                                </p>
+                                
+                                ${circular.description && circular.description.trim() ? `
+                                    <p style="margin: 8px 0; font-size: 14px; line-height: 1.5;">
+                                        <strong>📝 Description:</strong><br>
+                                        ${circular.description}
+                                    </p>
+                                ` : ''}
+                                
+                                ${circular.link && circular.link !== null && circular.link !== 'N/A' ? `
+                                    <p style="margin: 8px 0; font-size: 12px; word-break: break-all;">
+                                        <strong>🔗 Link:</strong><br>
+                                        <a href="${circular.link}" style="color: #007bff;">${circular.link}</a>
+                                    </p>
+                                ` : ''}
+                            </div>
+                            
+                            <hr style="border: none; border-top: 1px solid #dee2e6; margin: 20px 0;">
+                        </div>
+                    `;
+                });
+
+                // Add footer
+                pdfContent += `
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #007bff; font-size: 12px; color: #666;">
+                        <p>Generated from DTE Karnataka Circulars App</p>
+                        <p>Total Circulars: ${circularsData.length}</p>
+                    </div>
+                `;
+
+                pdfContainer.innerHTML = pdfContent;
+                document.body.appendChild(pdfContainer);
+
+                // Wait a moment for fonts to load
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Convert to canvas with high quality
+                const canvas = await html2canvas(pdfContainer, {
+                    scale: 2, // Higher resolution
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: 800,
+                    windowWidth: 800,
+                    scrollX: 0,
+                    scrollY: 0
+                });
+
+                // Create PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('portrait', 'mm', 'a4');
+                
+                const pdfWidth = 210; // A4 width in mm
+                const pdfHeight = 297; // A4 height in mm
+                const canvasWidth = canvas.width;
+                const canvasHeight = canvas.height;
+                
+                // Calculate how many pages we need
+                const pageHeight = (canvasHeight * pdfWidth) / canvasWidth;
+                let currentHeight = 0;
+                let pageNumber = 1;
+
+                while (currentHeight < canvasHeight) {
+                    // Calculate the portion of canvas for this page
+                    const remainingHeight = canvasHeight - currentHeight;
+                    const pageCanvasHeight = Math.min(remainingHeight, (canvasHeight * pdfHeight) / pageHeight);
+                    
+                    // Create a temporary canvas for this page
+                    const pageCanvas = document.createElement('canvas');
+                    const pageCtx = pageCanvas.getContext('2d');
+                    pageCanvas.width = canvasWidth;
+                    pageCanvas.height = pageCanvasHeight;
+                    
+                    // Draw the portion of the main canvas
+                    pageCtx.drawImage(
+                        canvas,
+                        0, currentHeight, canvasWidth, pageCanvasHeight,
+                        0, 0, canvasWidth, pageCanvasHeight
+                    );
+                    
+                    // Add to PDF
+                    const imgData = pageCanvas.toDataURL('image/jpeg', 0.8);
+                    
+                    if (pageNumber > 1) {
+                        pdf.addPage();
+                    }
+                    
+                    const actualHeight = Math.min(pdfHeight, (pageCanvasHeight * pdfWidth) / canvasWidth);
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, actualHeight);
+                    
+                    currentHeight += pageCanvasHeight;
+                    pageNumber++;
+                }
+
+                // Clean up
+                document.body.removeChild(pdfContainer);
+
+                // Save the PDF
+                const fileName = `DTE_${currentCategory}_Circulars_${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+                showSuccess('📄 PDF exported successfully with Kannada text support!');
+                
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                showError('Failed to export PDF. Please try again.');
+            } finally {
+                // Restore button state
+                const exportBtn = document.getElementById('exportBtn');
+                exportBtn.innerHTML = '📄 Export PDF';
+                exportBtn.disabled = false;
+            }
         }
 
-        function changeCategory() {
-            const select = document.getElementById('categorySelect');
-            currentCategory = select.value;
+        function changeCategory(category) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            const clickedTab = document.querySelector(`[data-category="${category}"]`);
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+            
+            currentCategory = category;
             loadCirculars();
         }
 
