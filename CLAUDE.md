@@ -34,7 +34,7 @@ This is a static web application that displays DTE Karnataka circulars, notices,
 ### GitHub Actions Workflow
 The scraper runs automatically but can be triggered manually:
 - **Manual trigger**: Go to GitHub Actions tab and run "Update DTE Circulars Data" workflow
-- **Schedule**: Runs every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
+- **Schedule**: Runs every 30 minutes automatically
 
 ### Python Environment
 ```bash
@@ -49,7 +49,7 @@ pip install requests beautifulsoup4 lxml urllib3
 ### Local Development
 - **Live server**: Use any static file server to serve `index.html`
 - **Testing**: Open `index.html` directly in browser (data loads from `data/` directory)
-- **Data refresh**: Circulars are loaded from JSON files in `data/` directory
+- **Data refresh**: Circulars are automatically refreshed every 30 minutes via GitHub Actions
 
 ## Data Categories
 
@@ -61,7 +61,7 @@ The application supports four circular categories:
 
 ## Key Features
 
-- **Auto-updates**: Data refreshed every 6 hours via GitHub Actions
+- **Auto-updates**: Data refreshed every 30 minutes via GitHub Actions
 - **Multi-category support**: DVP, Exam, ACM, and Departmental circulars
 - **Dark/light mode**: Theme toggle with localStorage persistence
 - **Mobile responsive**: Optimized layout for all devices
@@ -90,7 +90,8 @@ CSS uses custom properties for theming:
 ## GitHub Actions Integration
 
 The automation workflow (`update-circulars.yml`):
-- Runs Python scraper to fetch latest circulars from DTE website
+- Runs every 30 minutes automatically
+- Uses Python scraper to fetch latest circulars from DTE website
 - Updates JSON files in `data/` directory
 - Creates timestamp file for last update tracking
 - Commits and pushes changes automatically

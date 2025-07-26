@@ -158,7 +158,7 @@
             transition: all 0.3s ease;
         }
 
-        .refresh-btn, .export-btn, .live-btn {
+        .refresh-btn, .export-btn {
             background: #28a745;
             color: white;
             border: none;
@@ -173,22 +173,6 @@
             background: #007bff;
         }
 
-        .live-btn {
-            background: #ff6b35;
-            position: relative;
-        }
-
-        .live-btn.loading {
-            background: #dc3545;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
         .refresh-btn:hover {
             background: #218838;
         }
@@ -197,11 +181,7 @@
             background: #0056b3;
         }
 
-        .live-btn:hover {
-            background: #e55a2b;
-        }
-
-        .refresh-btn:disabled, .export-btn:disabled, .live-btn:disabled {
+        .refresh-btn:disabled, .export-btn:disabled {
             background: #6c757d;
             cursor: not-allowed;
         }
@@ -479,8 +459,8 @@
 
             .refresh-btn, .export-btn {
                 flex: 1;
-                max-width: 140px;
-                padding: 10px 12px;
+                max-width: 150px;
+                padding: 10px 16px;
                 font-size: 0.9rem;
             }
 
@@ -540,8 +520,7 @@
 
         <div class="info" id="autoUpdateInfo">
             <strong>🤖 Auto-Updated:</strong> Data refreshed every 30 minutes via GitHub Actions. 
-            <strong>⚡ Live Scraping:</strong> Click "Live Scrape" for real-time data (requires API server).
-            No CORS issues - reliable and fast!
+            Fresh circulars automatically scraped from DTE website - No CORS issues, reliable and fast!
         </div>
 
         <div class="controls">
@@ -553,9 +532,6 @@
             </select>
             <button class="refresh-btn" onclick="loadCirculars()">
                 🔄 Refresh Data
-            </button>
-            <button class="live-btn" onclick="loadLiveData()" id="liveBtn">
-                ⚡ Live Scrape
             </button>
             <button class="export-btn" onclick="exportData()" id="exportBtn" style="display: none;">
                 📥 Export JSON
@@ -585,8 +561,6 @@
         let isLoading = false;
         let circularsData = [];
         let currentCategory = 'Departmental';
-        let isLiveMode = false;
-        const API_BASE_URL = 'http://localhost:8000/api';
         
         // Dark mode functionality
         function toggleDarkMode() {
@@ -649,16 +623,12 @@
             document.getElementById('no-results').style.display = 'none';
             document.getElementById('exportBtn').style.display = 'none';
             document.querySelector('.refresh-btn').disabled = true;
-            document.querySelector('.live-btn').disabled = true;
-            document.querySelector('.live-btn').classList.add('loading');
             isLoading = true;
         }
 
         function hideLoading() {
             document.getElementById('loading').style.display = 'none';
             document.querySelector('.refresh-btn').disabled = false;
-            document.querySelector('.live-btn').disabled = false;
-            document.querySelector('.live-btn').classList.remove('loading');
             isLoading = false;
         }
 
@@ -795,7 +765,6 @@
             if (isLoading) return;
 
             showLoading();
-            isLiveMode = false;
 
             try {
                 // Load circulars data for current category
@@ -839,85 +808,6 @@
             }
         }
 
-        async function loadLiveData() {
-            if (isLoading) return;
-
-            showLoading();
-            isLiveMode = true;
-
-            // Update loading message for live scraping
-            document.getElementById('loading').innerHTML = `
-                <div class="spinner"></div>
-                ⚡ Live scraping from DTE website...<br>
-                <small>This may take 10-30 seconds</small>
-            `;
-
-            try {
-                // Get category mapping for API
-                const categoryMap = {
-                    'Departmental': 'departmental',
-                    'DVP': 'dvp',
-                    'Exam': 'exam',
-                    'ACM': 'acm'
-                };
-                
-                const apiCategory = categoryMap[currentCategory] || 'all';
-                const apiUrl = `${API_BASE_URL}/live?category=${apiCategory}`;
-                
-                console.log(`Fetching live data from: ${apiUrl}`);
-                
-                const response = await fetch(apiUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`Live API not available (${response.status}). Make sure the API server is running on port 8000.`);
-                }
-                
-                const result = await response.json();
-                
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to fetch live data');
-                }
-                
-                const circulars = result.data || [];
-                
-                // Create timestamp object for live data
-                const timestamp = {
-                    last_updated: new Date().toLocaleString(),
-                    source: 'live_scraped'
-                };
-                
-                displayCirculars(circulars, timestamp);
-                
-                if (circulars.length > 0) {
-                    showSuccess(`⚡ Live scraped ${circulars.length} fresh circulars from DTE website!`);
-                } else {
-                    showSuccess(`⚡ Live scraping completed - no new circulars found.`);
-                }
-                
-            } catch (error) {
-                let errorMessage = error.message;
-                
-                if (errorMessage.includes('Failed to fetch') || errorMessage.includes('network')) {
-                    errorMessage = `
-                        Live scraping failed - API server not running.<br><br>
-                        <strong>To enable live scraping:</strong><br>
-                        1. Run: <code>python api_server.py</code><br>
-                        2. Then click "Live Scrape" again<br><br>
-                        <strong>Alternative:</strong> Use "Refresh Data" for cached results.
-                    `;
-                }
-                
-                showError(errorMessage);
-                console.error('Live data error:', error);
-            } finally {
-                hideLoading();
-                // Reset loading message
-                document.getElementById('loading').innerHTML = `
-                    <div class="spinner"></div>
-                    Loading latest circulars data...
-                `;
-            }
-        }
 
         // Load circulars when page loads
         window.addEventListener('load', () => {
