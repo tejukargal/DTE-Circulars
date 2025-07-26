@@ -86,13 +86,13 @@ jobs:
           echo "No changes to commit"
         else
           echo "Committing changes..."
-          git commit -m "🤖 Auto-update circulars data (30min schedule)
+          git commit -m "Auto-update circulars data (30min schedule)
 
 Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          
-🔍 Latest DTE Karnataka circulars scraped automatically
-📊 Data available at: data/latest.json
-⏰ Updates every 30 minutes
+
+Latest DTE Karnataka circulars scraped automatically
+Data available at: data/latest.json
+Updates every 30 minutes
 
 Co-Authored-By: GitHub Actions <action@github.com>"
           
