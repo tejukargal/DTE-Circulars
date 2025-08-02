@@ -1,0 +1,132 @@
+name: Update DTE Circulars Data
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Run every 30 minutes (more reasonable)
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  update-circulars:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8  # Increased timeout for better reliability
+    permissions:
+      contents: write
+      actions: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        persist-credentials: true
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run scraper and update data
+      timeout-minutes: 6
+      run: |
+        echo "🚀 Starting DTE Karnataka Circulars Scraper ($(date))..."
+        
+        mkdir -p data
+        
+        echo "🐍 Python version: $(python --version)"
+        
+        # Run scraper with timeout and better error handling
+        echo "🔧 Running scraper..."
+        echo "🌐 Testing connectivity first..."
+        
+        # Test basic connectivity
+        if curl -k -L --connect-timeout 10 --max-time 15 "https://dtek.karnataka.gov.in" > /dev/null 2>&1; then
+          echo "✅ Website is accessible"
+        else
+          echo "⚠️ Website connectivity issues detected"
+        fi
+        
+        # Set Python to ignore SSL certificates
+        export PYTHONHTTPSVERIFY=0
+        export CURL_CA_BUNDLE=""
+        export REQUESTS_CA_BUNDLE=""
+        
+        if timeout 300 python simple_scraper.py; then
+          echo "✅ Scraper completed successfully!"
+          scraped_count=$(python -c "import json; print(len(json.load(open('data/latest.json'))))" 2>/dev/null || echo "0")
+          echo "📊 Scraped $scraped_count circulars"
+          
+          # Additional validation
+          if [ "$scraped_count" -gt "0" ]; then
+            echo "✅ Data validation passed"
+          else
+            echo "⚠️ No circulars found, but scraper completed"
+          fi
+        else
+          echo "⚠️ Scraper failed or timed out"
+          echo "ℹ️ Creating empty files to prevent frontend errors"
+          
+          # Ensure data files exist even if scraper fails
+          echo "[]" > data/latest.json
+          echo "[]" > data/dvp.json
+          echo "[]" > data/exam.json
+          echo "[]" > data/acm.json
+          echo "[]" > data/departmental.json
+          echo '{"last_updated":"'$(date -u +'%Y-%m-%d %H:%M:%S UTC')'","status":"failed","circulars_count":0}' > data/timestamp.json
+        fi
+        
+        echo "📁 Files in data directory:"
+        ls -la data/ || echo "No data directory found"
+    
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git config --local url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+    
+    - name: Commit and push changes
+      run: |
+        echo "Current working directory contents:"
+        ls -la
+        
+        if [ -d "data" ]; then
+          git add data/
+          echo "Added data/ directory to git"
+        else
+          echo "No data directory found"
+        fi
+        
+        echo "Git status before commit:"
+        git status
+        
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          echo "Committing changes..."
+          git commit -m "Auto-update circulars data - $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          
+          echo "Pulling latest changes and rebasing..."
+          git pull --rebase origin main || {
+            echo "⚠️ Rebase failed, trying regular pull..."
+            git pull origin main || {
+              echo "⚠️ Pull failed, force pushing (this run has latest data)..."
+            }
+          }
+          
+          echo "Pushing to remote..."
+          if git push; then
+            echo "✅ Data updated successfully!"
+          else
+            echo "⚠️ Push failed - this may be due to concurrent updates"
+            echo "Data will be updated on next run"
+          fi
+        fi

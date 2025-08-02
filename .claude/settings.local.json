@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:dtek.karnataka.gov.in)",
+      "Bash(mkdir:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git pull:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(copy circulars.json datalatest.json)",
+      "Bash(cp:*)",
+      "Bash(gh repo view:*)",
+      "Bash(git rm:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(source:*)",
+      "Bash(ls:*)",
+      "Bash(git stash:*)",
+      "Bash(.venvScriptsactivate)",
+      "Bash(\".venv\\Scripts\\activate\")",
+      "Bash(gh repo edit:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(timeout 60 python:*)",
+      "Bash(curl:*)",
+      "Bash(git rebase:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(gh workflow:*)",
+      "Bash(gh run list:*)",
+      "WebFetch(domain:tejukargal.github.io)",
+      "Bash(copy:*)"
+    ],
+    "deny": []
+  }
+}

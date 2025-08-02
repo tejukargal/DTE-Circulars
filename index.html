@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTE Karnataka Circulars</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            /* Light mode variables */
+            --bg-primary: #f4f4f4;
+            --bg-secondary: #ffffff;
+            --bg-header: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-card-header: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            --bg-meta-item: #f1f3f4;
+            --bg-info: #d1ecf1;
+            --bg-success: #d4edda;
+            --bg-error: #f8d7da;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --text-light: #555;
+            --text-header: #2c3e50;
+            --text-success: #155724;
+            --text-error: #721c24;
+            --text-info: #0c5460;
+            --border-light: #dee2e6;
+            --border-meta: #e0e0e0;
+            --shadow-light: rgba(0,0,0,0.08);
+            --shadow-hover: rgba(0,0,0,0.15);
+        }
+
+        [data-theme="dark"] {
+            /* Dark mode variables */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-header: linear-gradient(135deg, #4a5568 0%, #553c8b 100%);
+            --bg-card-header: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            --bg-meta-item: #3a3a3a;
+            --bg-info: #1e3a5f;
+            --bg-success: #1e4620;
+            --bg-error: #4a1e1e;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --text-light: #cbd5e0;
+            --text-header: #f7fafc;
+            --text-success: #68d391;
+            --text-error: #fc8181;
+            --text-info: #63b3ed;
+            --border-light: #4a5568;
+            --border-meta: #4a5568;
+            --shadow-light: rgba(0,0,0,0.3);
+            --shadow-hover: rgba(0,0,0,0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            color: #2c3e50;
+            padding: 20px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow-light);
+            position: relative;
+            border: 2px solid #90caf9;
+        }
+
+        [data-theme="dark"] .header {
+            background: #2d3748;
+            color: #f7fafc;
+            border-color: #1565c0;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .header-notice {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 5px;
+            line-height: 1.2;
+            color: var(--text-secondary);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 123, 255, 0.2);
+            border: 2px solid rgba(0, 123, 255, 0.3);
+            border-radius: 20px;
+            padding: 6px 12px;
+            color: #2c3e50;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(0, 123, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        [data-theme="dark"] .dark-mode-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #f7fafc;
+        }
+
+        [data-theme="dark"] .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tabs-container {
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 100;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-light);
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tab {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            user-select: none;
+            flex: 1;
+            text-align: center;
+        }
+
+        .tab:hover {
+            background: #e3f2fd;
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-hover);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-color: #0056b3;
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+        }
+
+        [data-theme="dark"] .tab {
+            background: var(--bg-secondary);
+            border-color: var(--border-light);
+        }
+
+        [data-theme="dark"] .tab:hover {
+            background: #1e3a8a;
+            border-color: #4dabf7;
+        }
+
+        [data-theme="dark"] .tab.active {
+            background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+            border-color: #339af0;
+            box-shadow: 0 4px 16px rgba(77, 171, 247, 0.3);
+        }
+
+        .refresh-btn, .export-btn {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+            border: 2px solid #81c784;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            color: #0277bd;
+            border-color: #4fc3f7;
+        }
+
+        .refresh-btn:hover {
+            background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .export-btn:hover {
+            background: linear-gradient(135deg, #b3e5fc 0%, #81d4fa 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .refresh-btn:disabled, .export-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .info {
+            background: var(--bg-info);
+            color: var(--text-info);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        .circulars-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .circular-item {
+            background: var(--bg-secondary);
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            border: 2px solid #90caf9;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        [data-theme="dark"] .circular-item {
+            border-color: #1565c0;
+        }
+
+        .circular-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--shadow-hover);
+        }
+
+        .circular-header {
+            display: flex;
+            align-items: center;
+            margin: -18px -18px 8px -18px;
+            background: var(--bg-card-header);
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.3s ease;
+            min-height: 60px;
+        }
+
+        .serial-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 55px;
+            height: 55px;
+            margin: 5px 15px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+            flex-shrink: 0;
+            border: 2px solid #90caf9;
+        }
+
+        .serial-number:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.5);
+        }
+
+        [data-theme="dark"] .serial-number {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: #93c5fd;
+            box-shadow: 0 2px 8px rgba(147, 197, 253, 0.3);
+            border-color: #3b82f6;
+        }
+
+        [data-theme="dark"] .serial-number:hover {
+            box-shadow: 0 4px 16px rgba(77, 171, 247, 0.5);
+        }
+
+        .circular-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-header);
+            padding: 12px 18px 12px 0;
+            line-height: 1.4;
+            text-align: justify;
+            flex: 1;
+            transition: color 0.3s ease;
+        }
+
+
+        .circular-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-meta-item);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-meta);
+            transition: background 0.3s ease;
+        }
+
+        .meta-date {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        .meta-order {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        [data-theme="dark"] .meta-date {
+            color: #4dabf7;
+        }
+
+        [data-theme="dark"] .meta-order {
+            color: #51cf66;
+        }
+
+        .meta-section {
+            color: #6f42c1;
+            font-weight: 600;
+        }
+
+        [data-theme="dark"] .meta-section {
+            color: #a78bfa;
+        }
+
+        /* Section-specific header colors */
+        .circular-header.dvp {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-bottom: 3px solid #4caf50;
+        }
+
+        .circular-header.exam {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%);
+            border-bottom: 3px solid #ff9800;
+        }
+
+        .circular-header.acm {
+            background: linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%);
+            border-bottom: 3px solid #9c27b0;
+        }
+
+        .circular-header.departmental {
+            background: linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%);
+            border-bottom: 3px solid #2196f3;
+        }
+
+        .circular-header.latest {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-bottom: 3px solid #ffc107;
+        }
+
+        /* Dark theme section colors */
+        [data-theme="dark"] .circular-header.dvp {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            border-bottom-color: #66bb6a;
+        }
+
+        [data-theme="dark"] .circular-header.exam {
+            background: linear-gradient(135deg, #e65100 0%, #f57c00 100%);
+            border-bottom-color: #ffb74d;
+        }
+
+        [data-theme="dark"] .circular-header.acm {
+            background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%);
+            border-bottom-color: #ba68c8;
+        }
+
+        [data-theme="dark"] .circular-header.departmental {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+            border-bottom-color: #64b5f6;
+        }
+
+        [data-theme="dark"] .circular-header.latest {
+            background: linear-gradient(135deg, #ff8f00 0%, #ffa000 100%);
+            border-bottom-color: #ffcc02;
+        }
+
+        .section-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+            color: white;
+        }
+
+        .section-indicator.dvp {
+            background: #4caf50;
+        }
+
+        .section-indicator.exam {
+            background: #ff9800;
+        }
+
+        .section-indicator.acm {
+            background: #9c27b0;
+        }
+
+        .section-indicator.departmental {
+            background: #2196f3;
+        }
+
+        .circular-description {
+            color: var(--text-light);
+            margin-bottom: 12px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .circular-link {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            color: #0277bd;
+            border: 2px solid #4fc3f7;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 36px;
+        }
+
+        .circular-link:hover {
+            background: linear-gradient(135deg, #b3e5fc 0%, #81d4fa 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+            border: 2px solid #81c784;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 36px;
+        }
+
+        .share-btn:hover {
+            background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .circular-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .circular-actions .circular-link,
+        .circular-actions .share-btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px 10px;
+                margin-bottom: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+                margin-bottom: 3px;
+            }
+
+            .header-notice {
+                font-size: 0.7rem;
+                margin-top: 3px;
+            }
+            
+            .circular-meta {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .controls {
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .refresh-btn, .export-btn {
+                flex: 1;
+                max-width: 150px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .tabs {
+                gap: 4px;
+                padding: 0 10px;
+                overflow-x: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .tab {
+                font-size: 0.8rem;
+                padding: 10px 8px;
+                flex: 1;
+                flex-shrink: 0;
+            }
+            
+            .tabs-container {
+                padding: 8px 0;
+                margin-bottom: 15px;
+            }
+
+            .circular-item {
+                padding: 15px;
+            }
+
+            .circular-header {
+                margin: -15px -15px 8px -15px;
+                min-height: 55px;
+            }
+
+            .serial-number {
+                width: 48px;
+                height: 48px;
+                margin: 5px 12px;
+                font-size: 1.3rem;
+            }
+
+            .circular-title {
+                font-size: 0.85rem;
+                padding: 10px 12px 10px 0;
+            }
+
+            .dark-mode-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 5px 10px;
+                font-size: 0.75rem;
+            }
+
+            .circular-actions {
+                gap: 8px;
+            }
+
+            .circular-link, .share-btn {
+                padding: 12px 8px;
+                font-size: 0.85rem;
+                min-height: 48px;
+                width: 48%;
+                touch-action: manipulation;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" id="darkModeToggle">
+                🌙
+            </button>
+            <h1>DTE Circulars</h1>
+            <p>Latest Govt. Orders, Circulars from Board Of Technical Education</p>
+            <p style="font-size: 0.9rem; margin-top: 5px; opacity: 0.8;">(Official Website: <a href="https://dtek.karnataka.gov.in/" target="_blank" style="color: inherit; text-decoration: underline;">https://dtek.karnataka.gov.in/</a>)</p>
+            <div class="header-notice">
+                🔄 Refresh the app for recent circulars • Visit the official DTEK website for accurate results
+                <div style="font-size: 0.6rem; margin-top: 3px; opacity: 0.6;">
+                    Thejaraj R. SMP Sagar
+                </div>
+            </div>
+        </div>
+
+        <div class="info" id="autoUpdateInfo">
+            <strong>🤖 Auto-Updated:</strong> Data refreshed every 30 minutes via GitHub Actions. 
+            Fresh circulars automatically scraped from DTE website - No CORS issues, reliable and fast!
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" data-category="Departmental" onclick="changeCategory('Departmental')">
+                    🏛️ Departmental
+                </div>
+                <div class="tab" data-category="DVP" onclick="changeCategory('DVP')">
+                    📋 DVP
+                </div>
+                <div class="tab" data-category="Exam" onclick="changeCategory('Exam')">
+                    📝 Exam
+                </div>
+                <div class="tab" data-category="ACM" onclick="changeCategory('ACM')">
+                    🎓 ACM
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="refresh-btn" onclick="loadCirculars()">
+                🔄 Refresh Data
+            </button>
+            <button class="export-btn" onclick="exportToPDF()" id="exportBtn" style="display: none;">
+                📄 Export PDF
+            </button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            Loading latest circulars data...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="success" class="success" style="display: none;"></div>
+
+        <div id="stats" class="stats" style="display: none;"></div>
+
+        <div id="circulars" class="circulars-list"></div>
+
+        <div id="no-results" class="no-results" style="display: none;">
+            <h3>No circulars found</h3>
+            <p>The data might be updating. Please try refreshing in a few moments.</p>
+        </div>
+    </div>
+
+
+    <script>
+        let isLoading = false;
+        let circularsData = [];
+        let currentCategory = 'Departmental';
+        
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const toggleBtn = document.getElementById('darkModeToggle');
+            
+            if (html.getAttribute('data-theme') === 'dark') {
+                // Switch to light mode
+                html.removeAttribute('data-theme');
+                toggleBtn.innerHTML = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Switch to dark mode
+                html.setAttribute('data-theme', 'dark');
+                toggleBtn.innerHTML = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Initialize theme on page load
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            const toggleBtn = document.getElementById('darkModeToggle');
+            
+            if (savedTheme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+                toggleBtn.innerHTML = '☀️';
+            } else {
+                html.removeAttribute('data-theme');
+                toggleBtn.innerHTML = '🌙';
+            }
+        }
+
+        const CATEGORIES = {
+            'DVP': {
+                name: 'DVP Circulars',
+                file: 'dvp.json'
+            },
+            'Exam': {
+                name: 'Exam Circulars', 
+                file: 'exam.json'
+            },
+            'ACM': {
+                name: 'ACM Circulars',
+                file: 'acm.json'
+            },
+            'Departmental': {
+                name: 'Departmental Circulars',
+                file: 'departmental.json'
+            }
+        };
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('success').style.display = 'none';
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('circulars').innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+            document.getElementById('exportBtn').style.display = 'none';
+            document.querySelector('.refresh-btn').disabled = true;
+            isLoading = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.querySelector('.refresh-btn').disabled = false;
+            isLoading = false;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `
+                <strong>⚠️ Data Loading Issue:</strong> ${message}
+                <br><br>
+                <strong>💡 What to try:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Wait a moment and click "Refresh Data" again</li>
+                    <li>The GitHub Actions may be updating the data</li>
+                    <li>Check back in a few minutes</li>
+                </ul>
+                <button onclick="loadCirculars()" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                    🔄 Try Again
+                </button>
+            `;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.innerHTML = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function displayCirculars(circulars, timestamp) {
+            const circularsDiv = document.getElementById('circulars');
+            const statsDiv = document.getElementById('stats');
+            const noResultsDiv = document.getElementById('no-results');
+            const exportBtn = document.getElementById('exportBtn');
+
+            if (!circulars || circulars.length === 0) {
+                noResultsDiv.style.display = 'block';
+                return;
+            }
+
+            // Show stats
+            const lastUpdated = timestamp ? timestamp.last_updated : new Date().toLocaleString();
+            statsDiv.innerHTML = `
+                <strong>📊 ${circulars.length} circulars loaded</strong> | 
+                <strong>🕒 Last updated:</strong> ${lastUpdated} |
+                <strong>🤖 Auto-refreshed:</strong> Every 30 minutes
+            `;
+            statsDiv.style.display = 'block';
+            exportBtn.style.display = 'inline-block';
+
+            // Display circulars
+            const circularsHtml = circulars.map((circular, index) => {
+                // Clean title by removing order number pattern from the beginning
+                let cleanTitle = circular.title;
+                // Remove patterns like "ಚಿತ್ರ/ಎಸಿಎಂಒಣ/ಫಾರ್ಮ್ ಎ(7)/139/2025:" from the beginning
+                cleanTitle = cleanTitle.replace(/^[^:]+:\s*/, '');
+                
+                return `
+                <div class="circular-item">
+                    <div class="circular-header">
+                        <div class="serial-number">${index + 1}</div>
+                        <div class="circular-title">
+                            ${escapeHtml(cleanTitle)}
+                        </div>
+                    </div>
+                    <div class="circular-meta">
+                        <div class="meta-item">
+                            <span>📅</span>
+                            <span>Date: </span>
+                            <span class="meta-date">${escapeHtml(circular.date)}</span>
+                        </div>
+                        ${circular.order_number ? `
+                        <div class="meta-item">
+                            <span>📋</span>
+                            <span>Order: </span>
+                            <span class="meta-order">${escapeHtml(circular.order_number)}</span>
+                        </div>
+                        ` : ''}
+                        <div class="meta-item">
+                            <span>🏛️</span>
+                            <span>Section: </span>
+                            <span class="meta-section">${getSectionName(currentCategory)}</span>
+                        </div>
+                    </div>
+                    <div class="circular-actions">
+                        <a href="${circular.link && circular.link !== null ? escapeHtml(circular.link) : generatePDFLink(circular, currentCategory)}" target="_blank" class="circular-link">
+                            📄 View PDF
+                        </a>
+                        <button onclick="shareCircular('${circular.link && circular.link !== null ? escapeHtml(circular.link) : generatePDFLink(circular, currentCategory)}', '${escapeHtml(cleanTitle)}', '${escapeHtml(circular.date)}', '${escapeHtml(circular.order_number || '')}', '${currentCategory}')" class="share-btn">
+                            🔗 Share
+                        </button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+            circularsDiv.innerHTML = circularsHtml;
+            circularsData = circulars;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function getSectionName(category) {
+            const sectionNames = {
+                'DVP': 'DVP Circulars',
+                'Exam': 'Examination',
+                'ACM': 'Academic & Curriculum',
+                'Departmental': 'Departmental Orders'
+            };
+            return sectionNames[category] || 'DTE Karnataka';
+        }
+
+        async function exportToPDF() {
+            if (circularsData.length === 0) {
+                showError('No data to export. Please refresh first.');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const exportBtn = document.getElementById('exportBtn');
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '🔄 Generating PDF...';
+                exportBtn.disabled = true;
+
+                // Create a temporary container for PDF content with A4 portrait dimensions
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.cssText = `
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                    width: 794px;
+                    background: white;
+                    padding: 40px;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    color: #333;
+                    line-height: 1.5;
+                `;
+
+                // Create PDF content with table format
+                const categoryInfo = CATEGORIES[currentCategory];
+                let pdfContent = `
+                    <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 15px;">
+                        <h1 style="font-size: 22px; margin: 0; color: #007bff; font-weight: bold;">DTE Karnataka Circulars</h1>
+                        <p style="font-size: 16px; margin: 8px 0; color: #666; font-weight: 600;">Department: ${categoryInfo.name}</p>
+                        <p style="font-size: 13px; margin: 5px 0; color: #666;">Generated on: ${new Date().toLocaleDateString('en-IN')} | Total Records: ${circularsData.length}</p>
+                    </div>
+                `;
+
+                // Create table with optimized column widths for portrait mode
+                pdfContent += `
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 15px;">
+                        <thead>
+                            <tr style="background-color: #007bff; color: white;">
+                                <th style="border: 1px solid #333; padding: 8px 4px; text-align: center; font-weight: bold; width: 6%; font-size: 11px;">Sl</th>
+                                <th style="border: 1px solid #333; padding: 8px 4px; text-align: center; font-weight: bold; width: 12%; font-size: 11px;">Date</th>
+                                <th style="border: 1px solid #333; padding: 8px 4px; text-align: center; font-weight: bold; width: 22%; font-size: 11px;">Order No.</th>
+                                <th style="border: 1px solid #333; padding: 8px 4px; text-align: center; font-weight: bold; width: 50%; font-size: 11px;">Subject</th>
+                                <th style="border: 1px solid #333; padding: 8px 4px; text-align: center; font-weight: bold; width: 10%; font-size: 11px;">Section</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                // Add table rows for each circular
+                circularsData.forEach((circular, index) => {
+                    let cleanTitle = circular.title.replace(/^[^:]+:\s*/, '');
+                    const backgroundColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                    
+                    pdfContent += `
+                        <tr style="background-color: ${backgroundColor}; page-break-inside: avoid;">
+                            <td style="border: 1px solid #333; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: 600; color: #007bff; font-size: 10px;">
+                                ${index + 1}
+                            </td>
+                            <td style="border: 1px solid #333; padding: 6px 3px; text-align: center; vertical-align: top; font-size: 9px; line-height: 1.2;">
+                                ${circular.date || 'N/A'}
+                            </td>
+                            <td style="border: 1px solid #333; padding: 6px 3px; vertical-align: top; font-size: 9px; word-wrap: break-word; line-height: 1.3;">
+                                ${circular.order_number || 'N/A'}
+                            </td>
+                            <td style="border: 1px solid #333; padding: 6px 3px; vertical-align: top; font-size: 9px; word-wrap: break-word; line-height: 1.4; text-align: left;">
+                                ${cleanTitle}
+                            </td>
+                            <td style="border: 1px solid #333; padding: 6px 3px; text-align: center; vertical-align: top; font-size: 8px; font-weight: 600; color: #28a745; line-height: 1.2;">
+                                ${getSectionName(currentCategory).replace('Circulars', '').replace('Orders', '').trim()}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Close table and add footer
+                pdfContent += `
+                        </tbody>
+                    </table>
+                    
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #007bff; font-size: 12px; color: #666;">
+                        <p style="margin: 5px 0;"><strong>Generated from DTE Karnataka Circulars App</strong></p>
+                        <p style="margin: 5px 0;">Official Website: https://dtek.karnataka.gov.in/</p>
+                        <p style="margin: 5px 0; font-size: 11px; opacity: 0.8;">This document contains ${circularsData.length} circulars from ${categoryInfo.name}</p>
+                    </div>
+                `;
+
+                pdfContainer.innerHTML = pdfContent;
+                document.body.appendChild(pdfContainer);
+
+                // Wait a moment for fonts to load and content to render
+                await new Promise(resolve => setTimeout(resolve, 600));
+
+                // Convert to canvas with optimized settings for A4 portrait
+                const canvas = await html2canvas(pdfContainer, {
+                    scale: 3, // Higher resolution for crisp text
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: 794,
+                    windowWidth: 794,
+                    scrollX: 0,
+                    scrollY: 0,
+                    onclone: function(clonedDoc) {
+                        // Ensure table styling is preserved in cloned document
+                        const tables = clonedDoc.querySelectorAll('table');
+                        tables.forEach(table => {
+                            table.style.borderCollapse = 'collapse';
+                            table.style.width = '100%';
+                        });
+                    }
+                });
+
+                // Create PDF with portrait orientation for A4 size
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('portrait', 'mm', 'a4');
+                
+                const pdfWidth = 210; // A4 portrait width in mm
+                const pdfHeight = 297; // A4 portrait height in mm
+                const canvasWidth = canvas.width;
+                const canvasHeight = canvas.height;
+                
+                // Calculate proper scaling for full A4 width utilization
+                const margin = 5; // 5mm margin
+                const availableWidth = pdfWidth - (margin * 2);
+                const availableHeight = pdfHeight - (margin * 2);
+                
+                // Scale to fit width while maintaining aspect ratio
+                const scale = availableWidth / (canvasWidth / 3); // Divide by 3 due to scale factor
+                const scaledWidth = availableWidth;
+                const scaledHeight = (canvasHeight / 3) * scale;
+                
+                // Calculate how many pages we need
+                let currentHeight = 0;
+                let pageNumber = 1;
+
+                while (currentHeight < canvasHeight) {
+                    // Calculate the portion of canvas for this page
+                    const remainingHeight = canvasHeight - currentHeight;
+                    const maxPageHeight = (availableHeight * canvasHeight) / scaledHeight;
+                    const pageCanvasHeight = Math.min(remainingHeight, maxPageHeight);
+                    
+                    // Create a temporary canvas for this page
+                    const pageCanvas = document.createElement('canvas');
+                    const pageCtx = pageCanvas.getContext('2d');
+                    pageCanvas.width = canvasWidth;
+                    pageCanvas.height = pageCanvasHeight;
+                    
+                    // Fill with white background
+                    pageCtx.fillStyle = '#ffffff';
+                    pageCtx.fillRect(0, 0, canvasWidth, pageCanvasHeight);
+                    
+                    // Draw the portion of the main canvas
+                    pageCtx.drawImage(
+                        canvas,
+                        0, currentHeight, canvasWidth, pageCanvasHeight,
+                        0, 0, canvasWidth, pageCanvasHeight
+                    );
+                    
+                    // Add to PDF
+                    const imgData = pageCanvas.toDataURL('image/jpeg', 0.95);
+                    
+                    if (pageNumber > 1) {
+                        pdf.addPage();
+                    }
+                    
+                    const pageHeight = (pageCanvasHeight / 3) * scale;
+                    pdf.addImage(imgData, 'JPEG', margin, margin, scaledWidth, pageHeight);
+                    
+                    currentHeight += pageCanvasHeight;
+                    pageNumber++;
+                }
+
+                // Clean up
+                document.body.removeChild(pdfContainer);
+
+                // Save the PDF
+                const fileName = `DTE_${currentCategory}_Circulars_Table_${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+                showSuccess('📄 PDF table exported successfully with optimized column widths!');
+                
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                showError('Failed to export PDF table. Please try again.');
+            } finally {
+                // Restore button state
+                const exportBtn = document.getElementById('exportBtn');
+                exportBtn.innerHTML = '📄 Export PDF';
+                exportBtn.disabled = false;
+            }
+        }
+
+        function changeCategory(category) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            const clickedTab = document.querySelector(`[data-category="${category}"]`);
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+            
+            currentCategory = category;
+            loadCirculars();
+        }
+
+        async function loadCirculars() {
+            if (isLoading) return;
+
+            showLoading();
+
+            try {
+                let circulars;
+                
+                // Load circulars data for current category
+                const categoryInfo = CATEGORIES[currentCategory];
+                const circularsResponse = await fetch(`./data/${categoryInfo.file}`);
+                
+                // Fallback to latest.json if category-specific file doesn't exist
+                if (!circularsResponse.ok) {
+                    console.log(`Category file not found, falling back to latest.json`);
+                    const fallbackResponse = await fetch('./data/latest.json');
+                    if (!fallbackResponse.ok) {
+                        throw new Error(`Failed to load circulars data (${fallbackResponse.status})`);
+                    }
+                    circulars = await fallbackResponse.json();
+                } else {
+                    circulars = await circularsResponse.json();
+                }
+
+                // Load timestamp data
+                let timestamp = null;
+                try {
+                    const timestampResponse = await fetch('./data/timestamp.json');
+                    if (timestampResponse.ok) {
+                        timestamp = await timestampResponse.json();
+                    }
+                } catch (e) {
+                    console.log('Timestamp not available:', e.message);
+                }
+
+                displayCirculars(circulars, timestamp);
+                
+                if (circulars.length > 0) {
+                    showSuccess(`✅ Successfully loaded ${circulars.length} ${categoryInfo.name.toLowerCase()}!`);
+                }
+            } catch (error) {
+                showError(`Failed to load data: ${error.message}. The GitHub Actions may be updating the data.`);
+                console.error('Load error:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+
+
+        // Load circulars when page loads
+        window.addEventListener('load', () => {
+            // Initialize theme first
+            initializeTheme();
+            
+            // Small delay to let the page render
+            setTimeout(loadCirculars, 500);
+            
+            // Hide the auto-update info message after 5 seconds
+            setTimeout(() => {
+                const autoUpdateInfo = document.getElementById('autoUpdateInfo');
+                if (autoUpdateInfo) {
+                    autoUpdateInfo.style.transition = 'opacity 0.5s ease-out';
+                    autoUpdateInfo.style.opacity = '0';
+                    setTimeout(() => {
+                        autoUpdateInfo.style.display = 'none';
+                    }, 500);
+                }
+            }, 5000);
+        });
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                loadCirculars();
+            }
+        });
+
+        // Load and consolidate latest 3 circulars from each section
+
+        // Generate PDF link for circulars without direct links
+        function generatePDFLink(circular, category) {
+            if (circular.link && circular.link !== null) {
+                return circular.link;
+            }
+            
+            // For departmental circulars without direct links, use the departmental orders page
+            // where users can find and access the actual PDF documents
+            if (category === 'Departmental') {
+                return 'https://dtek.karnataka.gov.in/en/departmental-order';
+            }
+            
+            // For other categories, fallback to the main website
+            return 'https://dtek.karnataka.gov.in/';
+        }
+
+        // Share Circular Functionality
+        function shareCircular(pdfUrl, title, date, orderNumber, category) {
+            // Get department name from category
+            const departmentName = CATEGORIES[category] ? CATEGORIES[category].name : 'DTE Karnataka';
+            
+            // Build comprehensive share message with clean formatting
+            let shareText = `📄 DTE Karnataka Circular\n`;
+            shareText += `🏛️ Department: ${departmentName}\n\n`;
+            shareText += `**Subject:** ${title}\n\n`;
+            shareText += `**Date:** ${date}\n\n`;
+            if (orderNumber) {
+                shareText += `**Order No:** ${orderNumber}\n\n`;
+            }
+            
+            // Handle document link - don't include URL in text for cleaner sharing
+            if (pdfUrl && pdfUrl !== 'N/A' && pdfUrl !== 'null') {
+                shareText += `📄 Document available online`;
+            } else {
+                shareText += `📄 Document: Not available online`;
+            }
+            
+            // Try to use Web Share API if available (this can handle URLs separately)
+            if (navigator.share) {
+                navigator.share({
+                    title: `DTE Karnataka Circular - ${title}`,
+                    text: shareText,
+                    url: (pdfUrl && pdfUrl !== 'N/A' && pdfUrl !== 'null') ? pdfUrl : undefined
+                }).then(() => {
+                    showSuccess('📤 Circular shared successfully!');
+                }).catch((error) => {
+                    console.log('Error sharing:', error);
+                    fallbackShareCircular(shareText, pdfUrl);
+                });
+            } else {
+                fallbackShareCircular(shareText, pdfUrl);
+            }
+        }
+
+        function fallbackShareCircular(shareText, pdfUrl) {
+            // Create a modal-like sharing interface
+            const shareModal = document.createElement('div');
+            shareModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                font-family: inherit;
+            `;
+            
+            const shareContent = document.createElement('div');
+            shareContent.style.cssText = `
+                background: var(--bg-secondary);
+                color: var(--text-primary);
+                padding: 30px;
+                border-radius: 12px;
+                max-width: 500px;
+                width: 90%;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            `;
+            
+            shareContent.innerHTML = `
+                <h3 style="margin: 0 0 20px 0; text-align: center; color: var(--text-primary);">Share Circular</h3>
+                <div style="background: var(--bg-primary); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; white-space: pre-line;">${shareText}</div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="copyTextBtn" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">📋 Copy Text</button>
+                    ${(pdfUrl && pdfUrl !== 'N/A' && pdfUrl !== 'null') ? `<button id="viewPdfBtn" style="flex: 1; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">📄 View PDF</button>` : ''}
+                    <button id="closeModalBtn" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">✖️ Close</button>
+                </div>
+            `;
+            
+            shareModal.appendChild(shareContent);
+            document.body.appendChild(shareModal);
+            
+            // Add event listeners
+            document.getElementById('copyTextBtn').onclick = () => {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(shareText).then(() => {
+                        showSuccess('📋 Circular details copied to clipboard!');
+                        document.body.removeChild(shareModal);
+                    });
+                } else {
+                    manualShareCircular(shareText);
+                    document.body.removeChild(shareModal);
+                }
+            };
+            
+            if (pdfUrl && pdfUrl !== 'N/A' && pdfUrl !== 'null') {
+                document.getElementById('viewPdfBtn').onclick = () => {
+                    window.open(pdfUrl, '_blank');
+                    document.body.removeChild(shareModal);
+                };
+            }
+            
+            document.getElementById('closeModalBtn').onclick = () => {
+                document.body.removeChild(shareModal);
+            };
+            
+            // Close on background click
+            shareModal.onclick = (e) => {
+                if (e.target === shareModal) {
+                    document.body.removeChild(shareModal);
+                }
+            };
+        }
+
+        function manualShareCircular(shareText) {
+            // Manual copy fallback
+            const textArea = document.createElement('textarea');
+            textArea.value = shareText;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showSuccess('📋 Circular details copied to clipboard!');
+            } catch (err) {
+                prompt('Copy this circular information to share:', shareText);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+    </script>
+</body>
+</html>
