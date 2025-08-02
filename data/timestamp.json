@@ -1,5 +1,6 @@
 {
-  "last_updated": "2025-08-02 18:16:02 UTC",
-  "status": "failed",
-  "circulars_count": 0
+  "last_updated": "2025-08-02 23:50:00 UTC",
+  "status": "backup_restored",
+  "circulars_count": 25,
+  "note": "DTE website SSL issues - manually restored backup data"
 }
