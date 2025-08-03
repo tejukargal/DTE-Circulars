@@ -1,1 +1,7 @@
-{"last_updated":"2025-08-03 15:20:07 UTC","status":"failed","circulars_count":0,"note":"Scraper failed - using fallback"}
+{
+  "last_updated": "2025-08-03 15:23:46 UTC",
+  "status": "backup_used",
+  "circulars_count": 400,
+  "source": "backup_20250730_200110.json",
+  "note": "DTE website inaccessible - using backup data"
+}
