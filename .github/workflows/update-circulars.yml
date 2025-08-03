@@ -38,7 +38,7 @@ jobs:
         pip install -r requirements.txt
     
     - name: Run scraper and update data
-      timeout-minutes: 8
+      timeout-minutes: 10
       run: |
         echo "🚀 Starting DTE Karnataka Circulars Scraper ($(date))..."
         
@@ -71,7 +71,18 @@ jobs:
         scraper_success=false
         fallback_success=false
         
-        if $connectivity_ok && timeout 240 python robust_scraper.py; then
+        # Try proxy scraper first (handles network restrictions)
+        if timeout 300 python proxy_scraper.py; then
+          echo "✅ Proxy scraper completed successfully!"
+          scraped_count=$(python -c "import json; print(len(json.load(open('data/latest.json'))))" 2>/dev/null || echo "0")
+          echo "📊 Proxy scraped $scraped_count circulars"
+          
+          if [ "$scraped_count" -gt "0" ]; then
+            echo "✅ Proxy scraper found new data"
+            scraper_success=true
+          fi
+        # Fallback to robust scraper if proxy fails
+        elif $connectivity_ok && timeout 240 python robust_scraper.py; then
           echo "✅ Scraper completed successfully!"
           scraped_count=$(python -c "import json; print(len(json.load(open('data/latest.json'))))" 2>/dev/null || echo "0")
           echo "📊 Scraped $scraped_count circulars"
@@ -87,8 +98,16 @@ jobs:
           echo "⚠️ Scraper failed, timed out, or connectivity issues"
           echo "🔄 Trying fallback scraper..."
           
+          # Try smart scraper (combines existing data with AI patterns)
+          if timeout 180 python smart_scraper.py; then
+            echo "✅ Smart scraper succeeded"
+            fallback_count=$(python -c "import json; print(len(json.load(open('data/latest.json'))))" 2>/dev/null || echo "0")
+            echo "📊 Smart scraper got $fallback_count circulars"
+            if [ "$fallback_count" -gt "0" ]; then
+              fallback_success=true
+            fi
           # Try simple scraper as backup
-          if timeout 120 python simple_scraper.py; then
+          elif timeout 120 python simple_scraper.py; then
             echo "✅ Simple scraper succeeded as backup"
             fallback_count=$(python -c "import json; print(len(json.load(open('data/latest.json'))))" 2>/dev/null || echo "0")
             echo "📊 Simple scraper got $fallback_count circulars"
@@ -96,7 +115,7 @@ jobs:
               fallback_success=true
             fi
           else
-            echo "⚠️ Simple scraper also failed, trying fallback data..."
+            echo "⚠️ All scrapers failed, trying fallback data..."
             # Try fallback scraper if it exists
             if [ -f "fallback_scraper.py" ]; then
               if timeout 60 python fallback_scraper.py; then
