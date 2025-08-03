@@ -2,10 +2,12 @@ name: Update DTE Circulars Data
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # Run every 30 minutes (more reasonable)
-  workflow_dispatch:
+    - cron: '0 */6 * * *'  # Run every 6 hours (more sustainable)
+  workflow_dispatch:  # Allow manual trigger
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'data/**'  # Don't trigger on data updates to prevent loops
 
 permissions:
   contents: write
@@ -36,7 +38,7 @@ jobs:
         pip install -r requirements.txt
     
     - name: Run scraper and update data
-      timeout-minutes: 3
+      timeout-minutes: 5
       run: |
         echo "🚀 Starting DTE Karnataka Circulars Scraper ($(date))..."
         
@@ -48,19 +50,25 @@ jobs:
         echo "🔧 Running scraper..."
         echo "🌐 Testing connectivity first..."
         
-        # Test basic connectivity
-        if curl -k -L --connect-timeout 10 --max-time 15 "https://dtek.karnataka.gov.in" > /dev/null 2>&1; then
-          echo "✅ Website is accessible"
-        else
-          echo "⚠️ Website connectivity issues detected"
-        fi
+        # Test basic connectivity with multiple URLs
+        connectivity_ok=false
+        for url in "https://dtek.karnataka.gov.in" "http://dtek.karnataka.gov.in"; do
+          if curl -k -L --connect-timeout 10 --max-time 15 "$url" > /dev/null 2>&1; then
+            echo "✅ $url is accessible"
+            connectivity_ok=true
+            break
+          else
+            echo "⚠️ $url connectivity issues"
+          fi
+        done
         
         # Set Python to ignore SSL certificates
         export PYTHONHTTPSVERIFY=0
         export CURL_CA_BUNDLE=""
         export REQUESTS_CA_BUNDLE=""
+        export SSL_VERIFY=false
         
-        if timeout 120 python simple_scraper.py; then
+        if $connectivity_ok && timeout 180 python simple_scraper.py; then
           echo "✅ Scraper completed successfully!"
           scraped_count=$(python -c "import json; print(len(json.load(open('data/latest.json'))))" 2>/dev/null || echo "0")
           echo "📊 Scraped $scraped_count circulars"
@@ -72,16 +80,26 @@ jobs:
             echo "⚠️ No circulars found, but scraper completed"
           fi
         else
-          echo "⚠️ Scraper failed or timed out"
-          echo "ℹ️ Creating empty files to prevent frontend errors"
+          echo "⚠️ Scraper failed, timed out, or connectivity issues"
+          echo "🔄 Trying fallback scraper..."
+          
+          # Try fallback scraper if it exists
+          if [ -f "fallback_scraper.py" ]; then
+            if timeout 60 python fallback_scraper.py; then
+              echo "✅ Fallback scraper succeeded"
+            else
+              echo "⚠️ Fallback scraper also failed"
+            fi
+          fi
           
           # Ensure data files exist even if scraper fails
+          echo "ℹ️ Creating fallback files to prevent frontend errors"
           echo "[]" > data/latest.json
           echo "[]" > data/dvp.json
           echo "[]" > data/exam.json
           echo "[]" > data/acm.json
           echo "[]" > data/departmental.json
-          echo '{"last_updated":"'$(date -u +'%Y-%m-%d %H:%M:%S UTC')'","status":"failed","circulars_count":0}' > data/timestamp.json
+          echo '{"last_updated":"'$(date -u +'%Y-%m-%d %H:%M:%S UTC')'","status":"failed","circulars_count":0,"note":"Scraper failed - using fallback"}' > data/timestamp.json
         fi
         
         echo "📁 Files in data directory:"
