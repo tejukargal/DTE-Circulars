@@ -1,7 +1,6 @@
 {
-  "last_updated": "2025-08-03 15:40:30 UTC",
-  "status": "backup_used",
-  "circulars_count": 400,
-  "source": "backup_20250730_200110.json",
-  "note": "DTE website inaccessible - using backup data"
+  "last_updated": "2025-08-06 09:00:08 UTC",
+  "status": "proxy_success",
+  "circulars_count": 3,
+  "method": "proxy_scraping"
 }
