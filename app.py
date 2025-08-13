@@ -13,6 +13,24 @@ logger = logging.getLogger(__name__)
 # Initialize scraper
 scraper = DTECircularScraper()
 
+def _get_sample_data():
+    """Provide sample data when real scraping fails (for demo purposes)"""
+    from datetime import datetime, timedelta
+    base_date = datetime.now()
+    
+    sample_circulars = []
+    for i in range(5):
+        date_str = (base_date - timedelta(days=i*2)).strftime('%Y-%m-%d')
+        sample_circulars.append({
+            'serial_no': i + 1,
+            'date': date_str,
+            'order_no': f'DTE/ADMIN/{2024 + i}/SAMPLE-{i+1:03d}',
+            'subject': f'Sample Circular {i+1}: Railway deployment demo data - This is sample content shown when the DTE website cannot be accessed from cloud platforms',
+            'pdf_link': 'https://example.com/sample.pdf'
+        })
+    
+    return sample_circulars
+
 @app.route('/')
 def index():
     """Serve the main HTML page"""
@@ -29,6 +47,10 @@ def get_circulars():
         logger.info(f"Environment: Railway={'RAILWAY_ENVIRONMENT' in os.environ}")
         logger.info(f"Python version: {os.sys.version}")
         
+        # Check if this is Railway environment and provide appropriate fallback
+        if 'RAILWAY_ENVIRONMENT' in os.environ:
+            logger.warning("Railway environment detected - network restrictions may apply")
+        
         circulars = scraper.scrape_circulars(limit=20)
         logger.info(f"Successfully scraped {len(circulars)} circulars")
         
@@ -44,15 +66,23 @@ def get_circulars():
         
     except Exception as e:
         logger.error(f"Error in API endpoint: {e}", exc_info=True)
+        
+        # Provide helpful error message for Railway deployment issues
+        error_msg = str(e)
+        if 'RAILWAY_ENVIRONMENT' in os.environ:
+            if 'timeout' in error_msg.lower() or 'timed out' in error_msg.lower():
+                error_msg = "Railway deployment cannot access the DTE Karnataka website due to network restrictions. This is a common issue with cloud platforms accessing government websites."
+        
         return jsonify({
             'success': False,
-            'error': str(e),
-            'circulars': [],
+            'error': error_msg,
+            'circulars': _get_sample_data(),  # Provide sample data as fallback
             'debug_info': {
                 'error_type': type(e).__name__,
-                'railway_env': 'RAILWAY_ENVIRONMENT' in os.environ
+                'railway_env': 'RAILWAY_ENVIRONMENT' in os.environ,
+                'fallback_data': True
             }
-        }), 500
+        }), 200  # Return 200 with fallback data instead of 500
 
 @app.route('/pdf-viewer/<path:pdf_url>')
 def pdf_viewer(pdf_url):

@@ -34,11 +34,17 @@ async function loadCirculars() {
         const response = await fetch('/api/circulars');
         const data = await response.json();
         
-        if (!response.ok) {
+        // Handle both success and fallback scenarios
+        if (data.success || data.circulars.length > 0) {
+            displayCirculars(data.circulars);
+            
+            // Show warning if using fallback data
+            if (data.debug_info && data.debug_info.fallback_data) {
+                showWarning('⚠️ Showing sample data - The DTE website cannot be accessed from this deployment environment');
+            }
+        } else {
             throw new Error(data.error || 'Failed to fetch circulars');
         }
-        
-        displayCirculars(data.circulars);
         
     } catch (error) {
         console.error('Error fetching circulars:', error);
@@ -116,6 +122,14 @@ function showError(message) {
     const errorDiv = document.getElementById('error');
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
+}
+
+function showWarning(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.innerHTML = message;
+    errorDiv.style.display = 'block';
+    errorDiv.style.backgroundColor = '#ff9800';
+    errorDiv.style.color = 'white';
 }
 
 function escapeHtml(text) {

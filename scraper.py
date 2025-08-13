@@ -55,11 +55,11 @@ class DTECircularScraper:
         try:
             logger.info("Starting to scrape DTE circulars...")
             
-            # Make request with extended timeout and SSL bypass for Railway
+            # Make request with Railway-optimized timeout
             logger.info(f"Making request to: {self.circulars_url}")
             response = self.session.get(
                 self.circulars_url,
-                timeout=60,  # Increased timeout for Railway
+                timeout=30,  # Reduced for Railway worker limits
                 verify=False,
                 allow_redirects=True,
                 stream=False
