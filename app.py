@@ -22,8 +22,15 @@ def index():
 def get_circulars():
     """API endpoint to get circulars data with serial numbers"""
     try:
-        logger.info("Fetching circulars from API endpoint")
+        logger.info("API endpoint called - starting circular fetch")
+        import os
+        
+        # Log environment info for Railway debugging
+        logger.info(f"Environment: Railway={'RAILWAY_ENVIRONMENT' in os.environ}")
+        logger.info(f"Python version: {os.sys.version}")
+        
         circulars = scraper.scrape_circulars(limit=20)
+        logger.info(f"Successfully scraped {len(circulars)} circulars")
         
         # Add serial numbers starting from 1
         for i, circular in enumerate(circulars, 1):
@@ -36,11 +43,15 @@ def get_circulars():
         })
         
     except Exception as e:
-        logger.error(f"Error in API endpoint: {e}")
+        logger.error(f"Error in API endpoint: {e}", exc_info=True)
         return jsonify({
             'success': False,
             'error': str(e),
-            'circulars': []
+            'circulars': [],
+            'debug_info': {
+                'error_type': type(e).__name__,
+                'railway_env': 'RAILWAY_ENVIRONMENT' in os.environ
+            }
         }), 500
 
 @app.route('/pdf-viewer/<path:pdf_url>')

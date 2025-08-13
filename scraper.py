@@ -20,11 +20,32 @@ class DTECircularScraper:
         self.circulars_url = "https://dtek.karnataka.gov.in/info-4/Departmental+Circulars/kn"
         self.session = requests.Session()
         
-        # Configure session for SSL issues
+        # Configure session for SSL issues and Railway deployment
         self.session.verify = False
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Linux; X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
         })
+        
+        # Configure adapter with retry strategy for Railway
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+        
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "OPTIONS"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
         
     def scrape_circulars(self, limit=20):
         """
@@ -34,12 +55,16 @@ class DTECircularScraper:
         try:
             logger.info("Starting to scrape DTE circulars...")
             
-            # Make request with timeout and SSL bypass
+            # Make request with extended timeout and SSL bypass for Railway
+            logger.info(f"Making request to: {self.circulars_url}")
             response = self.session.get(
                 self.circulars_url,
-                timeout=30,
-                verify=False
+                timeout=60,  # Increased timeout for Railway
+                verify=False,
+                allow_redirects=True,
+                stream=False
             )
+            logger.info(f"Response status: {response.status_code}")
             response.raise_for_status()
             
             # Parse HTML
