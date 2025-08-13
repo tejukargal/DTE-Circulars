@@ -38,10 +38,12 @@ class DTECircularScraper:
         from urllib3.util.retry import Retry
         
         retry_strategy = Retry(
-            total=3,
-            backoff_factor=1,
+            total=2,  # Reduced retries for Railway
+            backoff_factor=0.5,  # Faster backoff
             status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "OPTIONS"]
+            allowed_methods=["HEAD", "GET", "OPTIONS"],
+            connect=2,  # Connection retries
+            read=2      # Read retries
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)
         self.session.mount("http://", adapter)
@@ -52,6 +54,13 @@ class DTECircularScraper:
         Scrape circulars from DTE Karnataka website
         Returns list of circular dictionaries with error handling
         """
+        import os
+        
+        # Quick check for Railway environment - skip scraping to avoid timeout
+        if 'RAILWAY_ENVIRONMENT' in os.environ:
+            logger.warning("Railway environment detected - skipping scraping due to network restrictions")
+            raise Exception("Railway deployment cannot access government websites due to network restrictions")
+        
         try:
             logger.info("Starting to scrape DTE circulars...")
             
@@ -59,7 +68,7 @@ class DTECircularScraper:
             logger.info(f"Making request to: {self.circulars_url}")
             response = self.session.get(
                 self.circulars_url,
-                timeout=30,  # Reduced for Railway worker limits
+                timeout=(10, 15),  # (connect, read) timeout for Railway
                 verify=False,
                 allow_redirects=True,
                 stream=False
