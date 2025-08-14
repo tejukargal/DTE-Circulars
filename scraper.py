@@ -56,10 +56,9 @@ class DTECircularScraper:
         """
         import os
         
-        # Quick check for Railway environment - skip scraping to avoid timeout
+        # Log Railway environment but attempt scraping anyway
         if 'RAILWAY_ENVIRONMENT' in os.environ:
-            logger.warning("Railway environment detected - skipping scraping due to network restrictions")
-            raise Exception("Railway deployment cannot access government websites due to network restrictions")
+            logger.info("Railway environment detected - attempting to scrape with optimized settings")
         
         try:
             logger.info("Starting to scrape DTE circulars...")
