@@ -1,0 +1,95 @@
+name: Update DTE Circulars Data
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual trigger
+  push:
+    branches: [ main ]
+    paths: [ 'scraper.py', '.github/workflows/update-circulars.yml' ]
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4 lxml
+    
+    - name: Scrape DTE circulars
+      run: |
+        python -c "
+        import json
+        import sys
+        from datetime import datetime
+        from scraper import DTECircularScraper
+        
+        try:
+            print('Starting data scrape...')
+            scraper = DTECircularScraper()
+            circulars = scraper.scrape_circulars(limit=25)
+            
+            if not circulars:
+                print('No circulars found, keeping existing data')
+                sys.exit(0)
+            
+            # Add serial numbers
+            for i, circular in enumerate(circulars, 1):
+                circular['serial_no'] = i
+            
+            # Create data structure
+            data = {
+                'circulars': circulars,
+                'count': len(circulars),
+                'last_updated': datetime.now().isoformat(),
+                'source': 'github_actions_scrape'
+            }
+            
+            # Write to data file
+            with open('data/circulars.json', 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            
+            print(f'Successfully scraped {len(circulars)} circulars')
+            
+        except Exception as e:
+            print(f'Error during scrape: {e}')
+            sys.exit(1)
+        "
+    
+    - name: Create data directory
+      run: mkdir -p data
+    
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if git diff --quiet data/circulars.json; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit and push changes
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data/circulars.json
+        git commit -m "🤖 Update DTE circulars data - $(date -u '+%Y-%m-%d %H:%M UTC')"
+        git push
+    
+    - name: No changes detected
+      if: steps.verify-changed-files.outputs.changed == 'false'
+      run: echo "No changes in circulars data, skipping commit"

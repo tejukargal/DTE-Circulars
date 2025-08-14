@@ -38,7 +38,16 @@ async function loadCirculars() {
         if (data.success || data.circulars.length > 0) {
             displayCirculars(data.circulars);
             
-            // Show warning if using fallback data (check multiple possible indicators)
+            // Show appropriate status based on data source
+            if (data.data_source === 'sample_data') {
+                showDemoDataWarning('⚠️ Showing sample data - Unable to load real circulars');
+            } else if (data.data_source === 'file') {
+                showSuccessMessage('✅ Showing latest DTE circulars (auto-updated via GitHub Actions)');
+            } else if (data.data_source === 'live_scraping') {
+                showSuccessMessage('✅ Showing live DTE circulars (real-time data)');
+            }
+            
+            // Legacy fallback detection
             if (data.notice || (data.debug_info && data.debug_info.fallback_data)) {
                 const warningMsg = data.notice || '⚠️ Showing sample data - The DTE website cannot be accessed from this deployment environment';
                 showDemoDataWarning(warningMsg);
@@ -167,6 +176,28 @@ function showDemoDataWarning(message) {
     errorDiv.style.textAlign = 'center';
     errorDiv.style.borderRadius = '8px';
     errorDiv.style.border = '2px solid #d35400';
+}
+
+function showSuccessMessage(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.2em;">✅</span>
+            <strong>LIVE DATA</strong>
+        </div>
+        <div>${message}</div>
+    `;
+    errorDiv.style.display = 'block';
+    errorDiv.style.backgroundColor = '#27ae60';
+    errorDiv.style.color = 'white';
+    errorDiv.style.textAlign = 'center';
+    errorDiv.style.borderRadius = '8px';
+    errorDiv.style.border = '2px solid #219a52';
+    
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
 }
 
 function escapeHtml(text) {

@@ -17,7 +17,8 @@
       "Bash(set RAILWAY_ENVIRONMENT=true)",
       "Bash(./venv/Scripts/python.exe -c \"\nimport os\nos.environ[''RAILWAY_ENVIRONMENT''] = ''true''\nfrom app import _get_sample_data\nsample_data = _get_sample_data()\nprint(''Sample data count:'', len(sample_data))\nfor i, item in enumerate(sample_data):\n    print(f''{i+1}. {item[\"\"date\"\"]} - {item[\"\"order_no\"\"]} - {item[\"\"subject\"\"][:50]}...'')\n\")",
       "Bash(./venv/Scripts/python.exe:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

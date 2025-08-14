@@ -38,30 +38,68 @@ def index():
 
 @app.route('/api/circulars')
 def get_circulars():
-    """API endpoint to get circulars data with serial numbers"""
+    """API endpoint to get circulars data from GitHub Actions updated file"""
     try:
-        logger.info("API endpoint called - starting circular fetch")
+        logger.info("API endpoint called - loading circulars data")
         import os
+        import json
+        from datetime import datetime
         
-        # Log environment info for Railway debugging
+        # Log environment info
         logger.info(f"Environment: Railway={'RAILWAY_ENVIRONMENT' in os.environ}")
-        logger.info(f"Python version: {os.sys.version}")
         
-        # Log Railway environment but let scraper handle it with optimized settings
-        if 'RAILWAY_ENVIRONMENT' in os.environ:
-            logger.info("Railway environment detected - using optimized scraper settings")
+        # Try to load from data file first (GitHub Actions updated)
+        data_file = 'data/circulars.json'
+        circulars = []
+        data_source = "file"
         
-        circulars = scraper.scrape_circulars(limit=20)
-        logger.info(f"Successfully scraped {len(circulars)} circulars")
+        if os.path.exists(data_file):
+            try:
+                with open(data_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                circulars = data.get('circulars', [])
+                last_updated = data.get('last_updated', 'Unknown')
+                logger.info(f"Loaded {len(circulars)} circulars from data file (updated: {last_updated})")
+                
+                # Check if data is recent (less than 24 hours old)
+                try:
+                    updated_time = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
+                    age_hours = (datetime.now() - updated_time).total_seconds() / 3600
+                    if age_hours > 24:
+                        logger.warning(f"Data file is {age_hours:.1f} hours old")
+                except:
+                    pass
+                    
+            except Exception as e:
+                logger.error(f"Error reading data file: {e}")
+                circulars = []
         
-        # Add serial numbers starting from 1
-        for i, circular in enumerate(circulars, 1):
-            circular['serial_no'] = i
+        # Fallback to live scraping only if no data file exists and not on Railway
+        if not circulars and 'RAILWAY_ENVIRONMENT' not in os.environ:
+            logger.info("No data file found, attempting live scraping...")
+            try:
+                circulars = scraper.scrape_circulars(limit=20)
+                data_source = "live_scraping"
+                logger.info(f"Successfully scraped {len(circulars)} circulars")
+                
+                # Add serial numbers
+                for i, circular in enumerate(circulars, 1):
+                    circular['serial_no'] = i
+            except Exception as e:
+                logger.error(f"Live scraping failed: {e}")
+                circulars = []
+        
+        # Final fallback to sample data
+        if not circulars:
+            logger.info("Using sample data as final fallback")
+            circulars = _get_sample_data()
+            data_source = "sample_data"
         
         return jsonify({
             'success': True,
             'circulars': circulars,
-            'count': len(circulars)
+            'count': len(circulars),
+            'data_source': data_source
         })
         
     except Exception as e:
