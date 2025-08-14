@@ -38,60 +38,24 @@ def index():
 
 @app.route('/api/circulars')
 def get_circulars():
-    """API endpoint to get circulars data from GitHub Actions updated file"""
+    """API endpoint to get fresh circulars data from live scraping"""
     try:
-        logger.info("API endpoint called - loading circulars data")
-        import os
-        import json
-        from datetime import datetime
+        logger.info("API endpoint called - fetching live data")
         
-        # Log environment info
-        logger.info(f"Environment: Railway={'RAILWAY_ENVIRONMENT' in os.environ}")
+        # Always fetch fresh data from the website
+        logger.info("Attempting live scraping...")
+        circulars = scraper.scrape_circulars(limit=20)
         
-        # Try to load from data file first (GitHub Actions updated)
-        data_file = 'data/circulars.json'
-        circulars = []
-        data_source = "file"
-        
-        if os.path.exists(data_file):
-            try:
-                with open(data_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                circulars = data.get('circulars', [])
-                last_updated = data.get('last_updated', 'Unknown')
-                logger.info(f"Loaded {len(circulars)} circulars from data file (updated: {last_updated})")
-                
-                # Check if data is recent (less than 24 hours old)
-                try:
-                    updated_time = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
-                    age_hours = (datetime.now() - updated_time).total_seconds() / 3600
-                    if age_hours > 24:
-                        logger.warning(f"Data file is {age_hours:.1f} hours old")
-                except:
-                    pass
-                    
-            except Exception as e:
-                logger.error(f"Error reading data file: {e}")
-                circulars = []
-        
-        # Fallback to live scraping only if no data file exists and not on Railway
-        if not circulars and 'RAILWAY_ENVIRONMENT' not in os.environ:
-            logger.info("No data file found, attempting live scraping...")
-            try:
-                circulars = scraper.scrape_circulars(limit=20)
-                data_source = "live_scraping"
-                logger.info(f"Successfully scraped {len(circulars)} circulars")
-                
-                # Add serial numbers
-                for i, circular in enumerate(circulars, 1):
-                    circular['serial_no'] = i
-            except Exception as e:
-                logger.error(f"Live scraping failed: {e}")
-                circulars = []
-        
-        # Final fallback to sample data
-        if not circulars:
-            logger.info("Using sample data as final fallback")
+        if circulars:
+            # Add serial numbers
+            for i, circular in enumerate(circulars, 1):
+                circular['serial_no'] = i
+            
+            logger.info(f"Successfully scraped {len(circulars)} circulars")
+            data_source = "live_scraping"
+        else:
+            # Fallback to sample data if scraping fails
+            logger.info("Live scraping failed - using sample data")
             circulars = _get_sample_data()
             data_source = "sample_data"
         
@@ -105,34 +69,16 @@ def get_circulars():
     except Exception as e:
         logger.error(f"Error in API endpoint: {e}", exc_info=True)
         
-        # Provide helpful error message for Railway deployment issues
-        error_msg = str(e)
-        is_railway = 'RAILWAY_ENVIRONMENT' in os.environ
-        
-        if is_railway:
-            if any(keyword in error_msg.lower() for keyword in ['timeout', 'timed out', 'connection', 'ssl', 'network']):
-                logger.info("Railway deployment network issue detected - returning sample data")
-                # Return successful response with sample data for Railway
-                sample_data = _get_sample_data()
-                for i, circular in enumerate(sample_data, 1):
-                    circular['serial_no'] = i
-                
-                return jsonify({
-                    'success': True,
-                    'circulars': sample_data,
-                    'count': len(sample_data),
-                    'notice': 'Demo data shown due to Railway network restrictions'
-                })
+        # Return sample data as fallback
+        logger.info("Error occurred - returning sample data")
+        sample_data = _get_sample_data()
         
         return jsonify({
             'success': False,
-            'error': error_msg,
-            'circulars': _get_sample_data(),  # Provide sample data as fallback
-            'debug_info': {
-                'error_type': type(e).__name__,
-                'railway_env': is_railway,
-                'fallback_data': True
-            }
+            'error': str(e),
+            'circulars': sample_data,  # Provide sample data as fallback
+            'count': len(sample_data),
+            'data_source': 'sample_data'
         }), 200  # Return 200 with fallback data instead of 500
 
 @app.route('/pdf-viewer/<path:pdf_url>')
@@ -160,56 +106,6 @@ def proxy_pdf():
         logger.error(f"Error proxying PDF: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/update-data', methods=['POST'])
-def update_data():
-    """Manual endpoint to update circulars data (for local use only)"""
-    import os
-    import json
-    from datetime import datetime
-    
-    # Only allow from local environment for security
-    if 'RAILWAY_ENVIRONMENT' in os.environ:
-        return jsonify({'error': 'Manual updates not allowed on Railway deployment'}), 403
-    
-    try:
-        logger.info("Manual data update triggered")
-        
-        # Scrape fresh data
-        circulars = scraper.scrape_circulars(limit=25)
-        
-        if not circulars:
-            return jsonify({'error': 'No circulars found during scraping'}), 400
-        
-        # Add serial numbers
-        for i, circular in enumerate(circulars, 1):
-            circular['serial_no'] = i
-        
-        # Create data structure
-        data = {
-            'circulars': circulars,
-            'count': len(circulars),
-            'last_updated': datetime.now().isoformat(),
-            'source': 'manual_update'
-        }
-        
-        # Ensure data directory exists
-        os.makedirs('data', exist_ok=True)
-        
-        # Write to data file
-        with open('data/circulars.json', 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Successfully updated data with {len(circulars)} circulars")
-        
-        return jsonify({
-            'success': True,
-            'message': f'Data updated with {len(circulars)} circulars',
-            'timestamp': data['last_updated']
-        })
-        
-    except Exception as e:
-        logger.error(f"Error during manual update: {e}")
-        return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(404)
 def not_found(error):

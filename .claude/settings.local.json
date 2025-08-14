@@ -20,8 +20,10 @@
       "Bash(rm:*)",
       "Bash(mkdir:*)",
       "Bash(npm install:*)",
-      "Bash(railway login:*)"
+      "Bash(railway login:*)",
+      "Bash(curl:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }
