@@ -1,6 +1,8 @@
 # DTE Karnataka Circulars Web App
 
-A clean and modern web application that scrapes and displays the latest departmental circulars from the DTE Karnataka website.
+A modern web application to view and access departmental circulars from the Directorate of Technical Education (DTE), Karnataka Government.
+
+![DTE Circulars App](https://img.shields.io/badge/Status-Active-green) ![Python](https://img.shields.io/badge/Python-3.9+-blue) ![Flask](https://img.shields.io/badge/Flask-2.3.3-lightgrey)
 
 ## Features
 
@@ -22,21 +24,26 @@ A clean and modern web application that scrapes and displays the latest departme
 - **No caching**: Always displays the most recent circulars (20 latest)
 - **Cross-device responsive**: Optimized for desktop, tablet, and mobile displays
 
-## Installation
+## 🚀 Quick Installation
 
-### Option 1: Quick Start (Recommended)
-**Windows:**
+### For Windows Users (Recommended)
+1. Download `install.bat` from this repository
+2. Right-click and "Run as Administrator" 
+3. Follow the installation prompts
+4. Run `run.bat` to start the app
+5. Open http://localhost:5000
+
+### For Developers
 ```bash
-run.bat
+git clone https://github.com/tejukargal/DTE-Circulars.git
+cd DTE-Circulars
+python -m venv venv
+venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+python app.py
 ```
 
-**Linux/Mac:**
-```bash
-chmod +x run.sh
-./run.sh
-```
-
-### Option 2: Manual Setup
+### Manual Setup
 1. Create virtual environment:
 ```bash
 python -m venv venv
