@@ -38,9 +38,10 @@ async function loadCirculars() {
         if (data.success || data.circulars.length > 0) {
             displayCirculars(data.circulars);
             
-            // Show warning if using fallback data
-            if (data.debug_info && data.debug_info.fallback_data) {
-                showWarning('⚠️ Showing sample data - The DTE website cannot be accessed from this deployment environment');
+            // Show warning if using fallback data (check multiple possible indicators)
+            if (data.notice || (data.debug_info && data.debug_info.fallback_data)) {
+                const warningMsg = data.notice || '⚠️ Showing sample data - The DTE website cannot be accessed from this deployment environment';
+                showDemoDataWarning(warningMsg);
             }
         } else {
             throw new Error(data.error || 'Failed to fetch circulars');
@@ -130,6 +131,42 @@ function showWarning(message) {
     errorDiv.style.display = 'block';
     errorDiv.style.backgroundColor = '#ff9800';
     errorDiv.style.color = 'white';
+}
+
+function showDemoDataWarning(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.2em;">🚧</span>
+            <strong>DEMO MODE</strong>
+        </div>
+        <div style="margin-bottom: 15px;">${message}</div>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="loadCirculars()" style="
+                background: rgba(255,255,255,0.2);
+                border: 1px solid white;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            ">🔄 Try Again</button>
+            <button onclick="document.getElementById('error').style.display='none'" style="
+                background: rgba(255,255,255,0.2);
+                border: 1px solid white;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+            ">✕ Dismiss</button>
+        </div>
+    `;
+    errorDiv.style.display = 'block';
+    errorDiv.style.backgroundColor = '#e67e22';
+    errorDiv.style.color = 'white';
+    errorDiv.style.textAlign = 'center';
+    errorDiv.style.borderRadius = '8px';
+    errorDiv.style.border = '2px solid #d35400';
 }
 
 function escapeHtml(text) {
