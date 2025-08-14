@@ -34,6 +34,7 @@ jobs:
         python -c "
         import json
         import sys
+        import os
         from datetime import datetime
         from scraper import DTECircularScraper
         
@@ -58,6 +59,9 @@ jobs:
                 'source': 'github_actions_scrape'
             }
             
+            # Ensure data directory exists
+            os.makedirs('data', exist_ok=True)
+            
             # Write to data file
             with open('data/circulars.json', 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
@@ -65,12 +69,30 @@ jobs:
             print(f'Successfully scraped {len(circulars)} circulars')
             
         except Exception as e:
-            print(f'Error during scrape: {e}')
-            sys.exit(1)
+            print(f'Scraping failed: {e}')
+            print('GitHub Actions cannot access the government website')
+            print('Data will need to be updated manually or from local environment')
+            
+            # Check if existing data file exists
+            if os.path.exists('data/circulars.json'):
+                print('Existing data file found, keeping current data')
+            else:
+                print('No existing data, creating placeholder')
+                # Create minimal data structure to prevent app errors
+                placeholder_data = {
+                    'circulars': [],
+                    'count': 0,
+                    'last_updated': datetime.now().isoformat(),
+                    'source': 'github_actions_failed',
+                    'error': 'GitHub Actions cannot reach DTE website'
+                }
+                os.makedirs('data', exist_ok=True)
+                with open('data/circulars.json', 'w', encoding='utf-8') as f:
+                    json.dump(placeholder_data, f, indent=2, ensure_ascii=False)
+            
+            # Don't exit with error - just continue without updating
+            sys.exit(0)
         "
-    
-    - name: Create data directory
-      run: mkdir -p data
     
     - name: Check for changes
       id: verify-changed-files

@@ -160,6 +160,57 @@ def proxy_pdf():
         logger.error(f"Error proxying PDF: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/update-data', methods=['POST'])
+def update_data():
+    """Manual endpoint to update circulars data (for local use only)"""
+    import os
+    import json
+    from datetime import datetime
+    
+    # Only allow from local environment for security
+    if 'RAILWAY_ENVIRONMENT' in os.environ:
+        return jsonify({'error': 'Manual updates not allowed on Railway deployment'}), 403
+    
+    try:
+        logger.info("Manual data update triggered")
+        
+        # Scrape fresh data
+        circulars = scraper.scrape_circulars(limit=25)
+        
+        if not circulars:
+            return jsonify({'error': 'No circulars found during scraping'}), 400
+        
+        # Add serial numbers
+        for i, circular in enumerate(circulars, 1):
+            circular['serial_no'] = i
+        
+        # Create data structure
+        data = {
+            'circulars': circulars,
+            'count': len(circulars),
+            'last_updated': datetime.now().isoformat(),
+            'source': 'manual_update'
+        }
+        
+        # Ensure data directory exists
+        os.makedirs('data', exist_ok=True)
+        
+        # Write to data file
+        with open('data/circulars.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"Successfully updated data with {len(circulars)} circulars")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Data updated with {len(circulars)} circulars',
+            'timestamp': data['last_updated']
+        })
+        
+    except Exception as e:
+        logger.error(f"Error during manual update: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Not found'}), 404
