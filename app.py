@@ -47,9 +47,9 @@ def get_circulars():
         logger.info(f"Environment: Railway={'RAILWAY_ENVIRONMENT' in os.environ}")
         logger.info(f"Python version: {os.sys.version}")
         
-        # Check if this is Railway environment and provide appropriate fallback
+        # Log Railway environment but let scraper handle it with optimized settings
         if 'RAILWAY_ENVIRONMENT' in os.environ:
-            logger.warning("Railway environment detected - network restrictions may apply")
+            logger.info("Railway environment detected - using optimized scraper settings")
         
         circulars = scraper.scrape_circulars(limit=20)
         logger.info(f"Successfully scraped {len(circulars)} circulars")

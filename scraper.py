@@ -6,6 +6,10 @@ from urllib.parse import urljoin
 import re
 from datetime import datetime
 import logging
+import time
+import random
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -18,62 +22,139 @@ class DTECircularScraper:
     def __init__(self):
         self.base_url = "https://dtek.karnataka.gov.in/"
         self.circulars_url = "https://dtek.karnataka.gov.in/info-4/Departmental+Circulars/kn"
+        
+        # Alternative URLs to try
+        self.alternative_urls = [
+            "https://dtek.karnataka.gov.in/info-4/Departmental+Circulars/kn",
+            "http://dtek.karnataka.gov.in/info-4/Departmental+Circulars/kn",
+            "https://dtek.karnataka.gov.in/info-4/Departmental%20Circulars/kn"
+        ]
+        
         self.session = requests.Session()
         
-        # Configure session for SSL issues and Railway deployment
+        # Railway-optimized headers with multiple user agents
+        self.user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0'
+        ]
+        
+        # Configure session for Railway deployment
         self.session.verify = False
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Linux; X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'User-Agent': random.choice(self.user_agents),
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Cache-Control': 'max-age=0'
         })
         
-        # Configure adapter with retry strategy for Railway
-        from requests.adapters import HTTPAdapter
-        from urllib3.util.retry import Retry
-        
+        # Aggressive retry strategy for Railway
         retry_strategy = Retry(
-            total=2,  # Reduced retries for Railway
-            backoff_factor=0.5,  # Faster backoff
-            status_forcelist=[429, 500, 502, 503, 504],
+            total=5,  # More retries
+            backoff_factor=1,  # Longer backoff
+            status_forcelist=[429, 500, 502, 503, 504, 520, 521, 522, 523, 524],
             allowed_methods=["HEAD", "GET", "OPTIONS"],
-            connect=2,  # Connection retries
-            read=2      # Read retries
+            connect=3,  # More connection retries
+            read=3,     # More read retries
+            raise_on_status=False
         )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
+        adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=10)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
         
     def scrape_circulars(self, limit=20):
         """
-        Scrape circulars from DTE Karnataka website
+        Scrape circulars from DTE Karnataka website with Railway optimization
         Returns list of circular dictionaries with error handling
         """
         import os
         
         # Log Railway environment but attempt scraping anyway
         if 'RAILWAY_ENVIRONMENT' in os.environ:
-            logger.info("Railway environment detected - attempting to scrape with optimized settings")
+            logger.info("Railway environment detected - using aggressive retry strategy")
+        
+        # Try multiple approaches
+        response = None
+        last_error = None
+        
+        # Approach 1: Try all alternative URLs with different methods
+        for attempt, url in enumerate(self.alternative_urls, 1):
+            try:
+                logger.info(f"Attempt {attempt}: Trying URL {url}")
+                
+                # Randomize user agent for each attempt
+                self.session.headers['User-Agent'] = random.choice(self.user_agents)
+                
+                # Try with longer timeout for Railway
+                response = self.session.get(
+                    url,
+                    timeout=(30, 60),  # Much longer timeouts
+                    verify=False,
+                    allow_redirects=True,
+                    stream=False
+                )
+                
+                logger.info(f"Response status: {response.status_code}")
+                
+                if response.status_code == 200 and len(response.content) > 1000:
+                    logger.info(f"Success with URL {url}")
+                    break
+                else:
+                    logger.warning(f"Invalid response from {url}: status={response.status_code}, size={len(response.content)}")
+                    response = None
+                    
+            except Exception as e:
+                logger.warning(f"Failed attempt {attempt} with {url}: {e}")
+                last_error = e
+                response = None
+                
+                # Wait between attempts
+                if attempt < len(self.alternative_urls):
+                    time.sleep(random.uniform(2, 5))
+        
+        # If all URLs failed, try with different session configuration
+        if not response:
+            logger.info("Trying with fresh session and different configuration...")
+            try:
+                fresh_session = requests.Session()
+                fresh_session.verify = False
+                fresh_session.headers.update({
+                    'User-Agent': 'curl/7.68.0',
+                    'Accept': '*/*',
+                    'Connection': 'close'
+                })
+                
+                response = fresh_session.get(
+                    self.circulars_url,
+                    timeout=(45, 90),
+                    verify=False,
+                    allow_redirects=True
+                )
+                
+                if response.status_code == 200:
+                    logger.info("Success with fresh session")
+                else:
+                    response = None
+                    
+            except Exception as e:
+                logger.error(f"Fresh session also failed: {e}")
+                last_error = e
+        
+        if not response:
+            if last_error:
+                raise last_error
+            else:
+                raise Exception("All connection attempts failed")
         
         try:
-            logger.info("Starting to scrape DTE circulars...")
-            
-            # Make request with Railway-optimized timeout
-            logger.info(f"Making request to: {self.circulars_url}")
-            response = self.session.get(
-                self.circulars_url,
-                timeout=(10, 15),  # (connect, read) timeout for Railway
-                verify=False,
-                allow_redirects=True,
-                stream=False
-            )
-            logger.info(f"Response status: {response.status_code}")
-            response.raise_for_status()
+            logger.info("Starting HTML parsing...")
             
             # Parse HTML
             soup = BeautifulSoup(response.content, 'html.parser')
